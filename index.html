@@ -5,147 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إيموشا: جواهر المعرفة - إيهاب شرف</title>
     <style>
-        body { 
-            background: #000; 
-            color: white; 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            margin: 0; 
-            padding: 0; 
-            overflow: hidden; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh;
-        }
-
-        /* خلفية متحركة خفيفة لزيادة الاحترافية */
-        body::before {
-            content: ''; position: absolute; width: 200%; height: 200%;
-            background: radial-gradient(circle, #1a3300 0%, #000 70%);
-            animation: breathe 10s infinite alternate; z-index: -1; opacity: 0.5;
-        }
-        @keyframes breathe { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+        /* التنسيق الأساسي لضمان عدم ظهور شاشة سوداء */
+        body { background: #000; color: white; font-family: sans-serif; margin: 0; padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        #login { position: absolute; inset: 0; background: radial-gradient(circle, #002200, #000); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
         
-        /* شاشة الدخول الاحترافية */
-        #login { 
-            position: absolute; 
-            width: 100%; 
-            height: 100%; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            z-index: 1000;
-        }
+        /* إطار اللوجو الآمن لظهور كلمة EMOSHA كاملة */
+        .logo-frame { width: 170px; height: 170px; border-radius: 50%; border: 4px solid #ffcc00; margin-bottom: 20px; background: #000; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px #ffcc00; }
+        .logo-frame img { width: 85%; height: 85%; object-fit: contain; }
 
-        /* حل مشكلة اللوجو المتآكل - إطار آمن */
-        .logo-box { 
-            width: 160px; /* كبرت الحجم شوية */
-            height: 160px; 
-            border-radius: 50%; 
-            border: 4px solid #ffcc00; 
-            margin-bottom: 25px; 
-            overflow: hidden; 
-            box-shadow: 0 0 35px #ffcc00;
-            background: rgba(0,0,0,0.5); /* خلفية شبه شفافة */
-            display: flex; align-items: center; justify-content: center;
-            padding: 10px; /* مسافة أمان للحروف */
-        }
-        .logo-box img { 
-            width: 90%; /* الصورة أصغر قليلاً جوه الإطار */
-            height: 90%; 
-            object-fit: contain; /* تضمن ظهور اللوجو كاملاً */
-        }
+        .btn-play { background: #ffcc00; color: #000; padding: 15px 40px; border: none; border-radius: 30px; font-weight: bold; font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 10px rgba(255,204,0,0.4); }
+        
+        /* واجهة اللعبة - الجواهر */
+        #game { display: none; width: 100%; height: 100%; flex-direction: column; }
+        .bar { background: #111; padding: 15px; display: flex; justify-content: space-around; border-bottom: 2px solid #ffcc00; }
+        .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 15px; margin: auto; background: #222; border-radius: 12px; max-width: 380px; }
+        .gem { aspect-ratio: 1/1; background: #333; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; border-radius: 8px; cursor: pointer; }
+    </style>
+</head>
+<body>
 
-        /* تعديل النصوص لتكون واضحة */
-        h2 { color: #ffcc00; margin: 5px 0; font-size: 1.6rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        p { color: #ccc; margin: 0 0 30px 0; font-size: 1rem; }
+<div id="login">
+    <div class="logo-frame">
+        <img src="https://i.ibb.co/SXxQbqVh/Screenshot-Chat-GPT.jpg" alt="EMOSHA">
+    </div>
+    <h2 style="color:#ffcc00">إيموشا: جواهر المعرفة</h2>
+    <p>بإشراف القبطان إيهاب شرف</p>
+    <button class="btn-play" onclick="start()">دخول تجربة الجواهر 💎</button>
+</div>
 
-        /* زر الدخول المطور - يؤدي لتجربة الجواهر */
-        .start-btn { 
-            background: linear-gradient(45deg, #ffcc00, #ffaa00);
-            color: #000; 
-            padding: 18px 50px; 
-            border: none; 
-            border-radius: 35px; 
-            font-weight: bold; 
-            font-size: 1.3rem; 
-            cursor: pointer; 
-            box-shadow: 0 5px 15px rgba(255,204,0,0.4);
-            transition: 0.3s;
-        }
-        .start-btn:hover { transform: scale(1.05); box-shadow: 0 8px 20px rgba(255,204,0,0.6); }
+<div id="game">
+    <div class="bar">
+        <div style="color:#ffcc00">💰 ذهب: <span id="g">0</span></div>
+        <div style="color:#ff4444">⏳ وقت: <span id="t">60</span></div>
+    </div>
+    <div class="grid" id="grid"></div>
+</div>
 
-        /* شاشة اللعبة المطورة (الجواهر والأسئلة) */
-        #gameUI { 
-            display: none; 
-            width: 100%; 
-            height: 100%; 
-            flex-direction: column; 
-            z-index: 1;
+<script>
+    function start() {
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('game').style.display = 'flex';
+        const icons = ['💎', '⭐', '💣', '🛡️', '🔱', '🧿'];
+        const grid = document.getElementById('grid');
+        for(let i=0; i<36; i++) {
+            let d = document.createElement('div');
+            d.className = 'gem';
+            d.innerHTML = icons[Math.floor(Math.random()*icons.length)];
+            d.onclick = function() { 
+                this.style.background = '#444'; 
+                document.getElementById('g').innerText = parseInt(document.getElementById('g').innerText) + 10;
+            };
+            grid.appendChild(d);
         }
-        .top-bar { 
-            background: #111; 
-            padding: 15px; 
-            display: flex; 
-            justify-content: space-around; 
-            border-bottom: 2px solid #ffcc00; 
-            font-size: 1.3rem;
-            font-weight: bold;
-        }
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(6, 1fr); 
-            gap: 6px; 
-            padding: 12px; 
-            margin: auto; 
-            background: rgba(34,34,34,0.9); 
-            border-radius: 12px; 
-            border: 2px solid #333;
-            max-width: 380px;
-            width: 90%;
-        }
-        .gem { 
-            aspect-ratio: 1/1; 
-            background: #2a2a2a; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 1.7rem; 
-            border-radius: 8px; 
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-        .gem:active { transform: scale(0.9); }
-        .selected { border: 3px solid #fff; background: #444; box-shadow: 0 0 15px #fff; }
-
-        /* صندوق الأسئلة المفاجئ */
-        #quiz { 
-            position: fixed; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%); 
-            background: #222; 
-            padding: 25px; 
-            border: 4px solid #ffcc00; 
-            border-radius: 20px; 
-            display: none; 
-            width: 85%; 
-            z-index: 2000;
-            text-align: center;
-            box-shadow: 0 0 30px rgba(255,204,0,0.5);
-        }
-        .q-title { color: #ffcc00; margin-top: 0; font-size: 1.4rem; }
-        .ans-btn { 
-            display: block; 
-            width: 100%; 
-            margin: 12px 0; 
-            padding: 12px; 
-            background: linear-gradient(to bottom, #444, #333);
-            color: #fff; 
-            border: 1px solid #555; 
-            border-radius: 10px; 
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .ans-btn:hover { background: #ffcc00
+    }
+</script>
+</body>
+</html>
