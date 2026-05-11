@@ -37,46 +37,47 @@
 
 <div class="weapons">
     <button id="b-btn" class="w-btn bomb" onclick="setW('bomb')">💣 قنبلة (تطهير)</button>
-    <button id="r-btn" class="w-btn rocket" onclick="set
-            for(let i=1; i<=9; i++) {
-                document.write(`<div class="zone" id="z${i}" onclick="action(${i})">${i}</div>`);
-            }
-        </script>
-    </div>
+    <button id="r-btn" class="w-btn rocket" onclick="setW('rocket')">🚀 صاروخ (خاطف)</button>
+</div>
 
-    <p id="status">اختر فريقاً أولاً بالضغط على النقاط بالأعلى!</p>
-    <button onclick="currentTeam='red'" style="background:red; color:white; padding:10px">فريق الصقور</button>
-    <button onclick="currentTeam='blue'" style="background:blue; color:white; padding:10px">فريق الذئاب</button>
-
+<div class="map" id="map">
     <script>
-        let currentTeam = '';
-        let activeWeapon = '';
-
-        function useWeapon(weapon) {
-            activeWeapon = weapon;
-            alert("تم تفعيل " + (weapon === 'bomb' ? "القنبلة" : "الصاروخ"));
-        }
-
-        function action(id) {
-            if(!currentTeam) return alert("اختر فريقك أولاً!");
-            let el = document.getElementById('z'+id);
-            
-            if(activeWeapon === 'bomb') {
-                el.className = 'zone';
-                activeWeapon = '';
-            } else if(activeWeapon === 'rocket') {
-                el.className = 'zone ' + (currentTeam === 'red' ? 'red-team' : 'blue-team');
-                activeWeapon = '';
-            } else {
-                el.className = 'zone ' + (currentTeam === 'red' ? 'red-team' : 'blue-team');
-            }
-            updateScores();
-        }
-
-        function updateScores() {
-            document.getElementById('r-score').innerText = document.querySelectorAll('.red-team').length;
-            document.getElementById('b-score').innerText = document.querySelectorAll('.blue-team').length;
+        for(let i=1; i<=9; i++) {
+            document.write(`<div class="zone" id="z${i}" onclick="play(${i})">${i}</div>`);
         }
     </script>
+</div>
+
+<div class="footer-nav">
+    <p id="msg">انضم لفريقك أولاً يا قبطان:</p>
+    <button class="team-btn" style="background:#ff4d4d; color:white" onclick="setT('red')">فريق الصقور</button>
+    <button class="team-btn" style="background:#4d94ff; color:white" onclick="setT('blue')">فريق الذئاب</button>
+</div>
+
+<script>
+    let team = ''; let weapon = '';
+    function setT(t) { team = t; document.getElementById('msg').innerText = "أنت الآن تقود " + (t=='red'?'الصقور':'الذئاب'); }
+    function setW(w) { 
+        weapon = w; 
+        document.getElementById('b-btn').className = 'w-btn bomb' + (w=='bomb'?' active-w':'');
+        document.getElementById('r-btn').className = 'w-btn rocket' + (w=='rocket'?' active-w':'');
+    }
+    function play(id) {
+        if(!team) return alert("اختر فريقك أولاً!");
+        let z = document.getElementById('z'+id);
+        if(weapon == 'bomb') { z.className = 'zone'; weapon = ''; setW(''); }
+        else if(weapon == 'rocket') { z.className = 'zone ' + (team=='red'?'red-team':'blue-team'); weapon = ''; setW(''); }
+        else { z.className = 'zone ' + (team=='red'?'red-team':'blue-team'); }
+        update();
+    }
+    function update() {
+        let r = document.querySelectorAll('.red-team').length;
+        let b = document.querySelectorAll('.blue-team').length;
+        document.getElementById('rs').innerText = r;
+        document.getElementById('bs').innerText = b;
+        if(r+b === 9) alert("انتهت المعركة! الفوز لـ " + (r>b?"الصقور":"الذئاب"));
+    }
+</script>
+
 </body>
 </html>
