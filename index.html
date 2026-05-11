@@ -1,19 +1,79 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Emosha Game - إيموشا</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إيموشا - معركة السيطرة</title>
     <style>
-        body { background-color: #1a1a1a; color: gold; text-align: center; font-family: Arial, sans-serif; padding-top: 50px; }
-        .game-container { border: 5px solid #444; width: 90%; margin: auto; padding: 20px; border-radius: 15px; background: #222; }
-        .btn { background: #ffcc00; padding: 15px 30px; border: none; cursor: pointer; font-weight: bold; font-size: 20px; border-radius: 10px; margin-top: 20px; }
+        body { background: #1a1a1a; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 20px; }
+        .score-board { display: flex; justify-content: center; gap: 30px; background: #333; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px solid #555; }
+        .score-item { font-size: 1.2rem; font-weight: bold; }
+        .red-score { color: #ff4d4d; }
+        .blue-score { color: #4d94ff; }
+        .map { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 400px; margin: 0 auto; }
+        .zone { aspect-ratio: 1/1; background: #444; border: 3px solid #666; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 12px; font-weight: bold; transition: 0.3s; }
+        .red-team { background: #ff4d4d !important; border-color: #fff; transform: scale(1.05); }
+        .blue-team { background: #4d94ff !important; border-color: #fff; transform: scale(1.05); }
+        .team-select { margin: 20px 0; padding: 15px; background: #252525; border-radius: 10px; }
+        button { padding: 12px 24px; margin: 10px; cursor: pointer; border: none; border-radius: 5px; font-weight: bold; font-size: 1rem; }
+        .btn-red { background: #ff4d4d; color: white; }
+        .btn-blue { background: #4d94ff; color: white; }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <h1>مرحباً بك في عالم إيموشا 🎮</h1>
-        <p>لعبة القتال والسيطرة على المناطق</p>
-        <button class="btn" onclick="alert('جاهز يا قبطان؟ المعركة تبدأ قريباً!')">ابدأ اللعب</button>
+    <h1>إيموشا: صراع الفرق ⚔️</h1>
+
+    <div class="score-board">
+        <div class="score-item red-score">الصقور: <span id="r-score">0</span></div>
+        <div class="score-item blue-score">الذئاب: <span id="b-score">0</span></div>
     </div>
+    
+    <div class="team-select">
+        <p>القائد، اختر فريقك للبدء:</p>
+        <button class="btn-red" onclick="setTeam('red')">انضم للصقور</button>
+        <button class="btn-blue" onclick="setTeam('blue')">انضم للذئاب</button>
+    </div>
+
+    <div class="map" id="gameMap">
+        <div class="zone" onclick="capture(this)">1</div>
+        <div class="zone" onclick="capture(this)">2</div>
+        <div class="zone" onclick="capture(this)">3</div>
+        <div class="zone" onclick="capture(this)">4</div>
+        <div class="zone" onclick="capture(this)">5</div>
+        <div class="zone" onclick="capture(this)">6</div>
+        <div class="zone" onclick="capture(this)">7</div>
+        <div class="zone" onclick="capture(this)">8</div>
+        <div class="zone" onclick="capture(this)">9</div>
+    </div>
+
+    <script>
+        let currentTeam = '';
+        function setTeam(team) {
+            currentTeam = team;
+            alert("تم التعيين! أنت الآن تقود فريق " + (team === 'red' ? 'الصقور' : 'الذئاب'));
+        }
+
+        function capture(element) {
+            if (!currentTeam) {
+                alert("يجب اختيار فريق أولاً من الأعلى!");
+                return;
+            }
+            // السيطرة على المنطقة وتغيير لونها
+            element.className = 'zone ' + (currentTeam === 'red' ? 'red-team' : 'blue-team');
+            updateScores();
+        }
+
+        function updateScores() {
+            const redZones = document.querySelectorAll('.red-team').length;
+            const blueZones = document.querySelectorAll('.blue-team').length;
+            document.getElementById('r-score').innerText = redZones;
+            document.getElementById('b-score').innerText = blueZones;
+
+            if (redZones + blueZones === 9) {
+                const winner = redZones > blueZones ? "الصقور" : "الذئاب";
+                alert("انتهت المعركة! الفوز لـ " + winner);
+            }
+        }
+    </script>
 </body>
 </html>
