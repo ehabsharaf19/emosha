@@ -3,67 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إيموشا: التحدي - إيهاب شرف</title>
+    <title>إيموشا: الميدان الكبير - إيهاب شرف</title>
     <style>
         body { background: #000; color: white; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; overflow-x: hidden; }
         #login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #002200 0%, #000 100%); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .logo-container { width: 160px; height: 160px; border-radius: 50%; border: 4px solid #ffcc00; box-shadow: 0 0 30px rgba(255,204,0,0.4); margin-bottom: 10px; overflow: hidden; background: #111; }
+        .logo-container { width: 150px; height: 150px; border-radius: 50%; border: 3px solid #ffcc00; box-shadow: 0 0 25px rgba(255,204,0,0.4); margin-bottom: 10px; overflow: hidden; }
         .logo-img { width: 100%; height: 100%; object-fit: contain; }
-        .start-btn { background: linear-gradient(45deg, #ffcc00, #ffaa00); padding: 15px 45px; border-radius: 30px; color: black; border: none; font-weight: bold; cursor: pointer; font-size: 1.2rem; }
-        input { padding: 15px; border-radius: 12px; border: 1px solid #ffcc00; width: 80%; max-width: 280px; text-align: center; margin-bottom: 15px; background: rgba(255,255,255,0.1); color: white; }
+        .start-btn { background: linear-gradient(45deg, #ffcc00, #ffaa00); padding: 15px 40px; border-radius: 30px; color: black; border: none; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+        input { padding: 12px; border-radius: 10px; border: 1px solid #ffcc00; width: 80%; max-width: 280px; text-align: center; margin-bottom: 15px; background: rgba(255,255,255,0.1); color: white; }
 
-        #gameUI { display: none; padding-top: 10px; }
+        #gameUI { display: none; padding-top: 5px; }
         .top-bar { background: #111; padding: 10px; border-bottom: 2px solid #ffcc00; display: flex; justify-content: space-around; align-items: center; position: sticky; top: 0; z-index: 10; }
-        .timer { color: #ff3333; font-weight: bold; font-size: 1.3rem; border: 1px solid #ff3333; padding: 5px 15px; border-radius: 20px; }
-        .gold-count { color: #ffcc00; font-weight: bold; font-size: 1.2rem; }
+        .timer { color: #ff3333; font-weight: bold; font-size: 1.2rem; border: 1px solid #ff3333; padding: 4px 12px; border-radius: 20px; }
+        .gold-count { color: #ffcc00; font-weight: bold; font-size: 1.1rem; }
 
-        .stats { display: flex; justify-content: center; gap: 10px; margin: 10px 0; }
-        .stat-box { padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; }
-
-        .map-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 380px; margin: 0 auto; padding: 10px; }
-        .zone { aspect-ratio: 1/1; background: #1a1a1a; border-radius: 12px; border: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.75rem; cursor: pointer; position: relative; }
-        .icon { font-size: 1.6rem; margin-bottom: 3px; }
+        /* خريطة 4x4 */
+        .map-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-width: 95%; margin: 15px auto; padding: 5px; }
+        .zone { aspect-ratio: 1/1; background: #1a1a1a; border-radius: 10px; border: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.6rem; cursor: pointer; transition: 0.2s; }
+        .icon { font-size: 1.4rem; margin-bottom: 2px; }
         
-        .red-active { background: #ff3333 !important; box-shadow: 0 0 12px #ff3333; border: none; }
-        .blue-active { background: #3385ff !important; box-shadow: 0 0 12px #3385ff; border: none; }
+        .red-active { background: #ff3333 !important; box-shadow: 0 0 10px #ff3333; border: none; transform: scale(0.95); }
+        .blue-active { background: #3385ff !important; box-shadow: 0 0 10px #3385ff; border: none; transform: scale(0.95); }
 
-        .footer { position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.95); padding: 12px; display: flex; justify-content: center; gap: 8px; border-top: 1px solid #333; }
-        .team-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; color: white; cursor: pointer; }
-        #m-toggle { position: fixed; bottom: 80px; right: 20px; font-size: 1.8rem; cursor: pointer; background: #ffcc00; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; color: black; }
+        .footer { position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.95); padding: 10px; display: flex; justify-content: center; gap: 8px; border-top: 1px solid #333; }
+        .team-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; color: white; cursor: pointer; font-size: 0.9rem; }
+        #m-toggle { position: fixed; bottom: 75px; right: 15px; font-size: 1.6rem; cursor: pointer; background: #ffcc00; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: black; z-index: 20; }
     </style>
 </head>
 <body>
 
 <div id="login">
     <div class="logo-container"><img src="https://i.ibb.co/SXxQbqVh/Screenshot-Chat-GPT.jpg" class="logo-img"></div>
-    <h2 style="color:#ffcc00; margin:5px;">إيموشا: معركة السيطرة</h2>
-    <p style="color:#aaa; font-size:0.9rem; margin-bottom: 15px;">تطوير: إيهاب شرف</p>
-    <input type="email" id="uEmail" placeholder="سجل إيميلك لبدء التحدي...">
-    <button class="start-btn" onclick="startGame()">ابدأ التحدي (60 ثانية) ⚔️</button>
+    <h3 style="color:#ffcc00; margin:5px;">إيموشا: حرب الميدان</h3>
+    <p style="color:#aaa; font-size:0.85rem; margin-bottom: 15px;">المطور: إيهاب شرف</p>
+    <input type="email" id="uEmail" placeholder="سجل دخولك يا بطل...">
+    <button class="start-btn" onclick="startGame()">اكتسح الميدان ⚔️</button>
 </div>
 
 <div id="gameUI">
     <div class="top-bar">
-        <div class="timer">الوقت: <span id="timeLeft">60</span>s</div>
-        <div class="gold-count">💰 ذهب: <span id="gold">0</span></div>
+        <div class="timer">⏳ <span id="timeLeft">60</span>s</div>
+        <div class="gold-count">💰 <span id="gold">0</span></div>
     </div>
 
-    <div class="stats">
-        <div class="stat-box" style="background:#ff3333;">الصقور: <span id="rs">0</span></div>
-        <div class="stat-box" style="background:#3385ff;">الذئاب: <span id="bs">0</span></div>
-    </div>
-
-    <div class="map-grid">
-        <div class="zone" onclick="capture(this)"><span class="icon">🏭</span>مصنع</div>
-        <div class="zone" onclick="capture(this)"><span class="icon">🛖</span>هنجر</div>
-        <div class="zone" onclick="capture(this)"><span class="icon">🏚️</span>بيت</div>
-        <div class="zone" onclick="capture(this)"><span class="icon">🏢</span>القيادة</div>
-        <div class="zone" onclick="capture(this)"><span class="icon">⛽</span>محطة</div>
-        <div class="zone" onclick="capture(this)"><span class="icon">🏗️</span>مستودع</div>
-        <div class="zone" onclick="capture(this)"><span class="icon">🏘️</span>قرية</div>
-        <div class="zone" onclick="capture(this)"><span class="icon">🏠</span>فيلا</div>
-        <div class="zone" onclick="capture(this)"><span class="icon">🚧</span>حاجز</div>
-    </div>
+    <div class="map-grid" id="grid">
+        </div>
 
     <div id="m-toggle" onclick="toggleM()">🎵</div>
 
@@ -78,52 +62,47 @@
 <script>
     let team = '', gold = 0, time = 60, isP = false, gameActive = false;
     const bg = document.getElementById('bgM');
+    const icons = ['🏭','🛖','🏚️','🏢','⛽','🏗️','🏘️','🏠','🚧','🚁','⚓','📡','🏕️','🔩','💎','🛰️'];
+    const names = ['مصنع','هنجر','بيت','قيادة','محطة','مخزن','قرية','فيلا','حاجز','مطار','ميناء','رادار','معسكر','ورشة','منجم','قمر'];
+
+    // إنشاء الـ 16 مربع برمجياً
+    const grid = document.getElementById('grid');
+    for(let i=0; i<16; i++) {
+        let div = document.createElement('div');
+        div.className = 'zone';
+        div.onclick = function() { capture(this); };
+        div.innerHTML = `<span class="icon">${icons[i]}</span>${names[i]}`;
+        grid.appendChild(div);
+    }
 
     function startGame() {
         let e = document.getElementById('uEmail').value;
-        if(!e || !e.includes('@')) return alert("ادخل إيميلك عشان نسجل نقاطك!");
+        if(!e || !e.includes('@')) return alert("ادخل الإيميل للمنافسة!");
         document.getElementById('login').style.display = 'none';
         document.getElementById('gameUI').style.display = 'block';
         gameActive = true;
-        startTimer();
-        if(!isP) toggleM();
-    }
-
-    function startTimer() {
         let timerInterval = setInterval(() => {
-            if(time <= 0) {
-                clearInterval(timerInterval);
-                gameActive = false;
-                finishGame();
-            } else {
-                time--;
-                document.getElementById('timeLeft').innerText = time;
-            }
+            if(time <= 0) { clearInterval(timerInterval); gameActive = false; finish(); }
+            else { time--; document.getElementById('timeLeft').innerText = time; }
         }, 1000);
+        if(!isP) toggleM();
     }
 
     function setTeam(t) { team = t; }
 
     function capture(el) {
-        if(!gameActive) return alert("انتهى الوقت! ابدأ معركة جديدة.");
-        if(!team) return alert("اختر فريقك أولاً من الأزرار تحت!");
-        
+        if(!gameActive) return;
+        if(!team) return alert("اختر جيشك أولاً!");
         if(!el.classList.contains(team)) {
             el.className = 'zone ' + team;
-            gold += 50; // مكافأة سيطرة
+            gold += 100; // مكافأة أكبر للميدان الأكبر
             document.getElementById('gold').innerText = gold;
-            updateScores();
         }
     }
 
-    function updateScores() {
-        document.getElementById('rs').innerText = document.querySelectorAll('.red-active').length;
-        document.getElementById('bs').innerText = document.querySelectorAll('.blue-active').length;
-    }
-
-    function finishGame() {
-        alert("انتهت المعركة يا قبطان!\nلقد جمعت: " + gold + " ذهبة 💰\nسيتم تحديث رصيدك في لوحة الشرف.");
-        location.reload(); // إعادة التحدي
+    function finish() {
+        alert("انتهى الوقت! إنجازك اليوم: " + gold + " ذهبة 💰\nإيهاب شرف يحييك على شجاعتك!");
+        location.reload();
     }
 
     function toggleM() {
