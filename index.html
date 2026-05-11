@@ -1,17 +1,29 @@
+<!--
+EMOSHA - جواهر المعرفة
+نسخة احترافية مطورة
+By Captain Ehab Sharaf
+-->
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EMOSHA - جواهر المعرفة</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EMOSHA | جواهر المعرفة</title>
 
     <style>
-        body {
+        * {
             margin: 0;
-            background: #071207;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(to bottom, #061106, #0d1f0d);
             font-family: Arial;
             color: white;
+            overflow-x: hidden;
             text-align: center;
         }
 
@@ -21,16 +33,25 @@
         }
 
         .top-bar {
+            width: 100%;
             display: flex;
             justify-content: space-around;
-            padding: 10px;
-            background: #111;
+            align-items: center;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.5);
             border-bottom: 2px solid gold;
-            font-size: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .info-box {
+            font-size: 18px;
+            font-weight: bold;
         }
 
         #board {
-            width: 360px;
+            width: 390px;
             margin: 20px auto;
             display: grid;
             grid-template-columns: repeat(6, 60px);
@@ -40,58 +61,68 @@
         .cell {
             width: 60px;
             height: 60px;
-            background: #222;
-            border-radius: 12px;
-            font-size: 35px;
+            background: #1c1c1c;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 34px;
             cursor: pointer;
-            transition: .2s;
+            transition: 0.2s;
+            user-select: none;
+            border: 2px solid #333;
         }
 
         .cell:hover {
-            transform: scale(1.1);
+            transform: scale(1.06);
+            border-color: gold;
+        }
+
+        .cell.active {
+            background: #305430;
+            transform: scale(0.95);
         }
 
         .question-box {
-            width: 90%;
+            width: 92%;
             max-width: 500px;
-            background: #111;
             margin: 20px auto;
-            padding: 20px;
-            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.7);
             border: 2px solid gold;
+            border-radius: 20px;
+            padding: 20px;
             display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .question-box h2 {
+            margin-bottom: 20px;
+            color: gold;
+            line-height: 1.7;
         }
 
         .answer-btn {
-            width: 90%;
-            margin: 10px;
-            padding: 12px;
+            width: 100%;
+            margin: 10px 0;
+            padding: 15px;
             border: none;
-            border-radius: 10px;
+            border-radius: 14px;
             background: gold;
+            color: black;
             font-size: 18px;
-            cursor: pointer;
             font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
         }
 
         .answer-btn:hover {
             background: orange;
         }
 
-        .win-box {
-            display: none;
-            margin-top: 20px;
-            font-size: 28px;
-            color: gold;
-        }
-
         .start-screen {
             position: fixed;
             inset: 0;
-            background: #071207;
+            background: linear-gradient(to bottom, #061106, #000);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -99,44 +130,105 @@
             z-index: 100;
         }
 
+        .start-screen h1 {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+
+        .start-screen p {
+            margin-bottom: 20px;
+            color: #ccc;
+        }
+
         .start-btn {
-            padding: 15px 40px;
+            padding: 16px 40px;
             border: none;
             border-radius: 50px;
             background: gold;
-            font-size: 25px;
+            font-size: 22px;
             font-weight: bold;
             cursor: pointer;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 24px;
+            color: gold;
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
     </style>
 </head>
 
 <body>
 
+    <!-- شاشة البداية -->
     <div class="start-screen" id="startScreen">
+
         <h1>EMOSHA 💎</h1>
-        <h2>جواهر المعرفة</h2>
-        <p>بإشراف القبطان إيهاب شرف</p>
-        <button class="start-btn" onclick="startGame()">ابدأ اللعب</button>
+
+        <p>جواهر المعرفة - النسخة الاحترافية</p>
+
+        <button class="start-btn" onclick="startGame()">
+            ابدأ اللعب
+        </button>
+
     </div>
 
-    <h1>EMOSHA 💎</h1>
-
+    <!-- الشريط العلوي -->
     <div class="top-bar">
-        <div>💰 الذهب: <span id="score">0</span></div>
-        <div>🏆 المرحلة: <span id="level">1</span></div>
+
+        <div class="info-box">
+            💰 الذهب:
+            <span id="score">0</span>
+        </div>
+
+        <div class="info-box">
+            🏆 المرحلة:
+            <span id="level">1</span>
+        </div>
+
+        <div class="info-box">
+            👆 الضغطات:
+            <span id="moves">0</span> / 20
+        </div>
+
     </div>
 
+    <!-- لوحة اللعبة -->
     <div id="board"></div>
 
+    <!-- صندوق الأسئلة -->
     <div class="question-box" id="questionBox">
+
         <h2 id="questionText"></h2>
+
         <div id="answers"></div>
+
     </div>
 
-    <div class="win-box" id="winBox">
-        🎉 لقد أنهيت المرحلة 🎉
+    <!-- رسالة الفوز -->
+    <div class="message" id="finishMessage">
+
+        🎉 لقد أنهيت جميع المراحل 🎉
+
     </div>
+
+    <!-- موسيقى هادئة -->
+    <audio id="bgMusic" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8e4c3d5.mp3?filename=relaxing-145038.mp3" type="audio/mp3">
+    </audio>
 
     <script type="module">
 
@@ -161,6 +253,7 @@
         };
 
         const app = initializeApp(firebaseConfig);
+
         const analytics = getAnalytics(app);
 
         console.log("Firebase Connected ✅");
@@ -170,41 +263,98 @@
         // بيانات اللعبة
         // =========================
 
+        const board = document.getElementById("board");
+
         const items = [
             "💎",
+            "🧿",
+            "⭐",
             "🍭",
             "🍬",
-            "🍫",
-            "⭐",
-            "🧿"
+            "🔱"
         ];
 
         let score = 0;
+
         let level = 1;
+
         let moves = 0;
 
-        const board = document.getElementById("board");
+        let maxMoves = 20;
+
 
         // =========================
-        // 100 سؤال
+        // أسئلة صعبة نسبياً
         // =========================
 
-        const questions = [];
+        const questions = [
 
-        for (let i = 1; i <= 100; i++) {
-
-            questions.push({
-                q: "ما رقم هذه المرحلة؟",
+            {
+                q: "ما الدولة التي تمتلك أكبر عدد من الجزر في العالم؟",
                 options: [
-                    i,
-                    i + 1,
-                    i + 2,
-                    i + 3
+                    "السويد",
+                    "إندونيسيا",
+                    "اليابان",
+                    "النرويج"
                 ],
-                answer: i
-            });
+                answer: "السويد"
+            },
+
+            {
+                q: "ما أسرع كائن بحري في العالم؟",
+                options: [
+                    "القرش",
+                    "سمكة أبو شراع",
+                    "الحوت الأزرق",
+                    "التونة"
+                ],
+                answer: "سمكة أبو شراع"
+            },
+
+            {
+                q: "كم يبلغ عدد عظام جسم الإنسان البالغ؟",
+                options: [
+                    "206",
+                    "201",
+                    "212",
+                    "198"
+                ],
+                answer: "206"
+            },
+
+            {
+                q: "من هو مكتشف قانون الجاذبية؟",
+                options: [
+                    "نيوتن",
+                    "أينشتاين",
+                    "أرخميدس",
+                    "غاليلو"
+                ],
+                answer: "نيوتن"
+            },
+
+            {
+                q: "ما هي أعمق نقطة في محيطات العالم؟",
+                options: [
+                    "خندق ماريانا",
+                    "البحر الأحمر",
+                    "المحيط المتجمد",
+                    "خليج المكسيك"
+                ],
+                answer: "خندق ماريانا"
+            }
+
+        ];
+
+
+        // تكرار الأسئلة حتى 100 مرحلة
+
+        while (questions.length < 100) {
+
+            questions.push(...questions);
 
         }
+
 
         // =========================
         // تشغيل اللعبة
@@ -214,8 +364,14 @@
 
             document.getElementById("startScreen").style.display = "none";
 
+            document.getElementById("bgMusic").volume = 0.2;
+
+            document.getElementById("bgMusic").play();
+
             createBoard();
+
         }
+
 
         // =========================
         // إنشاء اللوحة
@@ -240,32 +396,35 @@
             }
         }
 
+
         // =========================
-        // الضغط على عنصر
+        // الضغط على العناصر
         // =========================
 
         function clickItem(cell) {
 
-            moves++;
+            cell.classList.add("active");
 
-            cell.style.background = "green";
+            setTimeout(() => {
+                cell.classList.remove("active");
+            }, 150);
 
             score += 5;
 
+            moves++;
+
             document.getElementById("score").innerText = score;
 
-            setTimeout(() => {
-                cell.style.background = "#222";
-            }, 200);
+            document.getElementById("moves").innerText = moves;
 
-            // كل 10 ضغطات = سؤال
-            if (moves >= 10) {
+            // انتهاء المرحلة بعد عدد الضغطات فقط
 
-                moves = 0;
+            if (moves >= maxMoves) {
 
                 showQuestion();
             }
         }
+
 
         // =========================
         // عرض السؤال
@@ -273,9 +432,9 @@
 
         function showQuestion() {
 
-            const qData = questions[level - 1];
-
             document.getElementById("questionBox").style.display = "block";
+
+            const qData = questions[level - 1];
 
             document.getElementById("questionText").innerText = qData.q;
 
@@ -283,20 +442,21 @@
 
             answersDiv.innerHTML = "";
 
-            qData.options.forEach(opt => {
+            qData.options.forEach(option => {
 
                 const btn = document.createElement("button");
 
                 btn.className = "answer-btn";
 
-                btn.innerText = opt;
+                btn.innerText = option;
 
-                btn.onclick = () => checkAnswer(opt);
+                btn.onclick = () => checkAnswer(option);
 
                 answersDiv.appendChild(btn);
 
             });
         }
+
 
         // =========================
         // فحص الإجابة
@@ -306,32 +466,36 @@
 
             const qData = questions[level - 1];
 
-            if (answer == qData.answer) {
-
-                alert("إجابة صحيحة ✅");
+            if (answer === qData.answer) {
 
                 score += 100;
 
                 level++;
 
+                moves = 0;
+
                 document.getElementById("score").innerText = score;
 
                 document.getElementById("level").innerText = level;
 
+                document.getElementById("moves").innerText = moves;
+
                 document.getElementById("questionBox").style.display = "none";
+
+                maxMoves++;
 
                 createBoard();
 
                 if (level > 100) {
 
-                    document.getElementById("winBox").style.display = "block";
-
                     board.innerHTML = "";
+
+                    document.getElementById("finishMessage").style.display = "block";
                 }
 
             } else {
 
-                alert("إجابة خاطئة ❌");
+                alert("إجابة خاطئة ❌ حاول مرة أخرى");
 
             }
         }
