@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إيموشا - إيهاب شرف</title>
     <style>
-        body { background: #000; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; margin: 0; overflow-x: hidden; }
+        body { background: #000; color: white; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; overflow-x: hidden; }
         
-        /* شاشة الدخول الفخمة */
         #login { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: radial-gradient(circle, #003300 0%, #000000 100%); 
@@ -15,72 +14,70 @@
         }
         
         .logo-container {
-            width: 180px; height: 180px;
-            border-radius: 50%;
-            border: 4px solid #ffcc00;
-            box-shadow: 0 0 40px rgba(255, 204, 0, 0.5);
-            margin-bottom: 20px;
-            overflow: hidden;
-            background: #111;
+            width: 170px; height: 170px; border-radius: 50%; border: 4px solid #ffcc00;
+            box-shadow: 0 0 35px rgba(255, 204, 0, 0.5); margin-bottom: 15px; overflow: hidden; background: #111;
         }
-
         .logo-img { width: 100%; height: 100%; object-fit: contain; }
 
-        .dev-name { color: #aaa; font-size: 1.1rem; margin-bottom: 30px; letter-spacing: 1px; }
-
         input { 
-            padding: 15px; border-radius: 12px; border: none; width: 80%; max-width: 300px; 
-            text-align: center; font-size: 1rem; margin-bottom: 20px; outline: none;
+            padding: 15px; border-radius: 12px; border: 1px solid #ffcc00; width: 80%; max-width: 300px; 
+            text-align: center; font-size: 1rem; margin-bottom: 15px; background: rgba(255,255,255,0.1); color: white;
         }
 
         .start-btn { 
-            background: linear-gradient(45deg, #ffcc00, #ffaa00); 
-            padding: 15px 60px; border-radius: 35px; color: black;
-            border: none; font-weight: bold; cursor: pointer; font-size: 1.3rem;
-            box-shadow: 0 8px 20px rgba(255, 204, 0, 0.3); transition: 0.3s;
+            background: linear-gradient(45deg, #ffcc00, #ffaa00); padding: 15px 50px; 
+            border-radius: 35px; color: black; border: none; font-weight: bold; cursor: pointer; font-size: 1.2rem;
         }
 
         /* الميدان */
-        .game-header { background: #111; padding: 20px; border-bottom: 3px solid #ffcc00; position: sticky; top: 0; z-index: 10; }
-        .map-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 400px; margin: 30px auto; padding: 15px; }
-        .zone { aspect-ratio: 1/1; background: #222; border-radius: 15px; border: 2px solid #333; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; transition: 0.3s; cursor: pointer; }
+        .game-header { background: #111; padding: 15px; border-bottom: 3px solid #ffcc00; }
+        .map-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 400px; margin: 20px auto; padding: 10px; }
+        .zone { 
+            aspect-ratio: 1/1; background: #222; border-radius: 15px; border: 1px solid #444; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer; 
+        }
+        .icon { font-size: 1.8rem; margin-bottom: 5px; }
         
-        .red-active { background: #ff3333 !important; border-color: #ff6666; box-shadow: 0 0 15px #ff3333; }
-        .blue-active { background: #3385ff !important; border-color: #66a3ff; box-shadow: 0 0 15px #3385ff; }
+        .red-active { background: #ff3333 !important; box-shadow: 0 0 15px #ff3333; border: none; }
+        .blue-active { background: #3385ff !important; box-shadow: 0 0 15px #3385ff; border: none; }
 
-        .footer-tools { position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.9); padding: 15px; display: flex; justify-content: center; gap: 10px; border-top: 1px solid #333; }
-        .team-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; color: white; }
+        .footer-tools { position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.9); padding: 15px; display: flex; justify-content: center; gap: 10px; }
+        .team-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; color: white; }
+
+        #music-toggle { position: fixed; bottom: 80px; right: 20px; font-size: 2rem; cursor: pointer; z-index: 20; background: #ffcc00; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; color: black; }
     </style>
 </head>
 <body>
 
 <div id="login">
     <div class="logo-container">
-        <img src="https://i.ibb.co/SXxQbqVh/Screenshot-Chat-GPT.jpg" class="logo-img" alt="إيموشا">
+        <img src="https://i.ibb.co/SXxQbqVh/Screenshot-Chat-GPT.jpg" class="logo-img">
     </div>
-    <h1 style="color:#ffcc00; font-size: 2.2rem; margin: 0;">إيموشا: الحرب</h1>
-    <p class="dev-name">تطوير: إيهاب شرف</p>
+    <h1 style="color:#ffcc00; margin:0;">إيموشا: الحرب</h1>
+    <p style="color:#aaa; margin-bottom: 20px;">تطوير المبدع: إيهاب شرف</p>
     
-    <input type="text" id="userName" placeholder="اكتب اسم القائد هنا...">
-    <button class="start-btn" onclick="start()">دخول الميدان ⚔️</button>
+    <input type="email" id="userEmail" placeholder="ادخل بريدك الإلكتروني (Login)...">
+    <button class="start-btn" onclick="start()">تسجيل الدخول ⚔️</button>
 </div>
 
 <div id="gameUI" style="display:none;">
     <div class="game-header">
-        <h2 id="displayTitle" style="margin:0; color:#ffcc00;"></h2>
+        <h3 id="displayEmail" style="margin:0; color:#ffcc00;"></h3>
     </div>
 
     <div class="map-grid">
-        <div class="zone" onclick="capture(this)">1</div>
-        <div class="zone" onclick="capture(this)">2</div>
-        <div class="zone" onclick="capture(this)">3</div>
-        <div class="zone" onclick="capture(this)">4</div>
-        <div class="zone" onclick="capture(this)">5</div>
-        <div class="zone" onclick="capture(this)">6</div>
-        <div class="zone" onclick="capture(this)">7</div>
-        <div class="zone" onclick="capture(this)">8</div>
-        <div class="zone" onclick="capture(this)">9</div>
+        <div class="zone" onclick="capture(this)"><span class="icon">🏭</span>مصنع</div>
+        <div class="zone" onclick="capture(this)"><span class="icon">🛖</span>هنجر</div>
+        <div class="zone" onclick="capture(this)"><span class="icon">🏚️</span>بيت مهجور</div>
+        <div class="zone" onclick="capture(this)"><span class="icon">🏢</span>مقر القيادة</div>
+        <div class="zone" onclick="capture(this)"><span class="icon">⛽</span>محطة وقود</div>
+        <div class="zone" onclick="capture(this)"><span class="icon">🏗️</span>مستودع</div>
+        <div class="zone" onclick="capture(this)"><span class="icon">🏘️</span>قرية</div>
+        <div class="zone" onclick="capture(this)"><span class="icon">🏠</span>فيلا</div>
+        <div class="zone" onclick="capture(this)"><span class="icon">🚧</span>حاجز أمني</div>
     </div>
+
+    <div id="music-toggle" onclick="toggleMusic()">🎵</div>
 
     <div class="footer-tools">
         <button class="team-btn" style="background:#ff3333;" onclick="currentTeam='red-active'">فريق الصقور</button>
@@ -88,19 +85,39 @@
     </div>
 </div>
 
+<audio id="bgMusic" loop>
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
+
 <script>
     let currentTeam = '';
+    let isPlaying = false;
+    const music = document.getElementById('bgMusic');
 
     function start() {
-        let n = document.getElementById('userName').value;
-        if(!n) return alert("من فضلك ادخل اسمك يا قائد");
+        let email = document.getElementById('userEmail').value;
+        if(!email || !email.includes('@')) return alert("من فضلك ادخل بريد إلكتروني صحيح!");
         document.getElementById('login').style.display = 'none';
         document.getElementById('gameUI').style.display = 'block';
-        document.getElementById('displayTitle').innerText = "القائد الميداني: " + n;
+        document.getElementById('displayEmail').innerText = "المقاتل: " + email.split('@')[0];
+        
+        // تشغيل الموسيقى تلقائياً عند البدء
+        toggleMusic();
+    }
+
+    function toggleMusic() {
+        if (!isPlaying) {
+            music.play();
+            document.getElementById('music-toggle').innerText = '🔇';
+        } else {
+            music.pause();
+            document.getElementById('music-toggle').innerText = '🎵';
+        }
+        isPlaying = !isPlaying;
     }
 
     function capture(el) {
-        if(!currentTeam) return alert("اختر فريقك أولاً من الأسفل!");
+        if(!currentTeam) return alert("اختر فريقك أولاً!");
         el.className = 'zone ' + currentTeam;
     }
 </script>
