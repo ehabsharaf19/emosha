@@ -12,7 +12,7 @@
         #grid { display: grid; grid-template-columns: repeat(8, 42px); grid-gap: 5px; justify-content: center; margin: 15px auto; background: rgba(0,242,255,0.1); padding: 10px; border-radius: 12px; border: 2px solid #00f2ff; width: fit-content; }
         .cell { width: 42px; height: 42px; background: #1a2a4a; display: flex; align-items: center; justify-content: center; font-size: 24px; border-radius: 6px; cursor: pointer; user-select: none; transition: 0.2s; }
         .active { outline: 3px solid white; transform: scale(1.1); z-index: 5; }
-        .quiz-box { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #112240; padding: 25px; border: 3px solid var(--gold); border-radius: 20px; z-index: 100; width: 85%; box-shadow: 0 0 30px #000; }
+        .quiz-box { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #112240; padding: 25px; border: 3px solid var(--gold); border-radius: 20px; z-index: 100; width: 85%; }
         .ans-btn { background: var(--gold); color: black; border: none; padding: 10px 20px; margin: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
     </style>
 </head>
@@ -29,7 +29,7 @@
 <div id="grid"></div>
 
 <div id="qBox" class="quiz-box">
-    <h2 style="color:var(--gold)">سؤال العبور للمرحلة التالية</h2>
+    <h2 style="color:var(--gold)">سؤال العبور</h2>
     <p id="qText" style="font-size:1.2rem;"></p>
     <div id="opts"></div>
 </div>
@@ -38,10 +38,7 @@
 
 <script>
     const types = ['🍎', '🍇', '🍊', '🍓', '💎', '⭐'];
-    const questions = [
-        {q: "ما هي عاصمة مصر؟", a: ["القاهرة", "الإسكندرية", "أسوان"], c: 0},
-        {q: "ما هو أسرع حيوان؟", a: ["الأسد", "الفهد", "الغزال"], c: 1}
-    ];
+    const questions = [{q: "ما هي عاصمة مصر؟", a: ["القاهرة", "طنطا"], c: 0}];
     let score = 0, level = 1, first = null, cells = [];
 
     function start() {
@@ -53,12 +50,14 @@
             d.innerHTML = types[Math.floor(Math.random() * types.length)];
             d.onclick = () => {
                 let music = document.getElementById('m');
-                music.volume = 0.2; // هنا الموسيقى هادية جداً
+                music.volume = 0.1; // صوت واطي جداً هادي
                 music.play().catch(()=>{});
                 handle(d, i);
             };
             g.appendChild(d); cells.push(d);
         }
+        // مسح أي فرقعة عشوائية عند البداية بدون نقاط
+        check(false);
     }
 
     function handle(d, i) {
@@ -66,26 +65,39 @@
         else {
             let diff = Math.abs(first.i - i);
             if (diff === 1 || diff === 8) {
-                let t = first.d.innerHTML; first.d.innerHTML = d.innerHTML; d.innerHTML = t;
-                if (!check()) { setTimeout(() => { let x = first.d.innerHTML; first.d.innerHTML = d.innerHTML; d.innerHTML = x; }, 300); }
+                let t1 = first.d.innerHTML; let t2 = d.innerHTML;
+                first.d.innerHTML = t2; d.innerHTML = t1;
+                // لو الحركة عملت 3 قطع فرقع وادي نقاط
+                if (!check(true)) { 
+                    setTimeout(() => { first.d.innerHTML = t1; d.innerHTML = t2; }, 300);
+                }
             }
             first.d.classList.remove('active'); first = null;
         }
     }
 
-    function check() {
+    function check(givePoints) {
         let found = false;
+        let toRemove = new Set();
+
         for (let i = 0; i < 64; i++) {
-            if (i % 8 < 6 && cells[i].innerHTML !== '' && cells[i].innerHTML === cells[i+1].innerHTML && cells[i].innerHTML === cells[i+2].innerHTML) {
-                cells[i].innerHTML = cells[i+1].innerHTML = cells[i+2].innerHTML = ''; found = true;
+            // فحص أفقي
+            if (i % 8 < 6 && cells[i].innerHTML === cells[i+1].innerHTML && cells[i].innerHTML === cells[i+2].innerHTML) {
+                toRemove.add(i); toRemove.add(i+1); toRemove.add(i+2); found = true;
             }
-            if (i < 48 && cells[i].innerHTML !== '' && cells[i].innerHTML === cells[i+8].innerHTML && cells[i].innerHTML === cells[i+16].innerHTML) {
-                cells[i].innerHTML = cells[i+8].innerHTML = cells[i+16].innerHTML = ''; found = true;
+            // فحص رأسي
+            if (i < 48 && cells[i].innerHTML === cells[i+8].innerHTML && cells[i].innerHTML === cells[i+16].innerHTML) {
+                toRemove.add(i); toRemove.add(i+8); toRemove.add(i+16); found = true;
             }
         }
+
         if (found) {
-            score += 20; document.getElementById('s').innerText = score;
-            if (score >= 100) showQuiz(); // الانتقال للمرحلة بعد 100 نقطة
+            if (givePoints) {
+                score += toRemove.size * 5;
+                document.getElementById('s').innerText = score;
+                if (score >= 100) showQuiz();
+            }
+            toRemove.forEach(idx => cells[idx].innerHTML = '');
             setTimeout(fill, 300);
         }
         return found;
@@ -93,7 +105,7 @@
 
     function showQuiz() {
         const box = document.getElementById('qBox');
-        const qData = questions[(level-1) % questions.length];
+        const qData = questions[0];
         document.getElementById('qText').innerText = qData.q;
         const optDiv = document.getElementById('opts');
         optDiv.innerHTML = '';
@@ -108,7 +120,7 @@
                     document.getElementById('l').innerText = level;
                     document.getElementById('s').innerText = score;
                     start();
-                } else { alert("ركز يا قبطان!"); }
+                }
             };
             optDiv.appendChild(b);
         });
@@ -117,9 +129,8 @@
 
     function fill() {
         cells.forEach(c => { if (c.innerHTML === '') c.innerHTML = types[Math.floor(Math.random() * types.length)]; });
-        check();
+        check(true);
     }
-
     window.onload = start;
 </script>
 </body>
