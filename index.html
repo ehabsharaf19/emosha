@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إيموشا: الميدان الكبير - إيهاب شرف</title>
+    <title>إيموشا: نظام المراحل - إيهاب شرف</title>
     <style>
         body { background: #000; color: white; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; overflow-x: hidden; }
         #login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #002200 0%, #000 100%); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
@@ -12,103 +12,107 @@
         .start-btn { background: linear-gradient(45deg, #ffcc00, #ffaa00); padding: 15px 40px; border-radius: 30px; color: black; border: none; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
         input { padding: 12px; border-radius: 10px; border: 1px solid #ffcc00; width: 80%; max-width: 280px; text-align: center; margin-bottom: 15px; background: rgba(255,255,255,0.1); color: white; }
 
-        #gameUI { display: none; padding-top: 5px; }
-        .top-bar { background: #111; padding: 10px; border-bottom: 2px solid #ffcc00; display: flex; justify-content: space-around; align-items: center; position: sticky; top: 0; z-index: 10; }
-        .timer { color: #ff3333; font-weight: bold; font-size: 1.2rem; border: 1px solid #ff3333; padding: 4px 12px; border-radius: 20px; }
-        .gold-count { color: #ffcc00; font-weight: bold; font-size: 1.1rem; }
+        #gameUI { display: none; }
+        .top-bar { background: #111; padding: 10px; border-bottom: 2px solid #ffcc00; display: flex; justify-content: space-around; align-items: center; }
+        .lvl-info { color: #ffcc00; font-weight: bold; }
+        .timer { color: #ff3333; border: 1px solid #ff3333; padding: 2px 10px; border-radius: 15px; }
 
-        /* خريطة 4x4 */
-        .map-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-width: 95%; margin: 15px auto; padding: 5px; }
-        .zone { aspect-ratio: 1/1; background: #1a1a1a; border-radius: 10px; border: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.6rem; cursor: pointer; transition: 0.2s; }
-        .icon { font-size: 1.4rem; margin-bottom: 2px; }
+        /* شبكة ديناميكية */
+        .map-grid { display: grid; gap: 8px; max-width: 95%; margin: 15px auto; padding: 5px; justify-content: center; }
+        .zone { aspect-ratio: 1/1; background: #1a1a1a; border-radius: 10px; border: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.65rem; cursor: pointer; }
+        .icon { font-size: 1.5rem; margin-bottom: 2px; }
         
-        .red-active { background: #ff3333 !important; box-shadow: 0 0 10px #ff3333; border: none; transform: scale(0.95); }
-        .blue-active { background: #3385ff !important; box-shadow: 0 0 10px #3385ff; border: none; transform: scale(0.95); }
+        .red-active { background: #ff3333 !important; box-shadow: 0 0 10px #ff3333; border: none; }
+        .blue-active { background: #3385ff !important; box-shadow: 0 0 10px #3385ff; border: none; }
 
-        .footer { position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.95); padding: 10px; display: flex; justify-content: center; gap: 8px; border-top: 1px solid #333; }
-        .team-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; color: white; cursor: pointer; font-size: 0.9rem; }
-        #m-toggle { position: fixed; bottom: 75px; right: 15px; font-size: 1.6rem; cursor: pointer; background: #ffcc00; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: black; z-index: 20; }
+        .footer { position: fixed; bottom: 0; width: 100%; background: #111; padding: 10px; display: flex; justify-content: center; gap: 8px; }
+        .team-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; color: white; }
     </style>
 </head>
 <body>
 
 <div id="login">
     <div class="logo-container"><img src="https://i.ibb.co/SXxQbqVh/Screenshot-Chat-GPT.jpg" class="logo-img"></div>
-    <h3 style="color:#ffcc00; margin:5px;">إيموشا: حرب الميدان</h3>
-    <p style="color:#aaa; font-size:0.85rem; margin-bottom: 15px;">المطور: إيهاب شرف</p>
-    <input type="email" id="uEmail" placeholder="سجل دخولك يا بطل...">
-    <button class="start-btn" onclick="startGame()">اكتسح الميدان ⚔️</button>
+    <h3 style="color:#ffcc00; margin:5px;">إيموشا: صراع المراحل</h3>
+    <p style="color:#aaa; font-size:0.85rem; margin-bottom: 15px;">المطور: القبطان إيهاب شرف</p>
+    <input type="email" id="uE" placeholder="سجل دخولك يا بطل...">
+    <button class="start-btn" onclick="initGame()">دخول المرحلة الأولى ⚔️</button>
 </div>
 
 <div id="gameUI">
     <div class="top-bar">
-        <div class="timer">⏳ <span id="timeLeft">60</span>s</div>
-        <div class="gold-count">💰 <span id="gold">0</span></div>
+        <div class="lvl-info" id="lvlText">المرحلة: 1</div>
+        <div class="timer">⏳ <span id="tm">60</span>s</div>
+        <div style="color:#ffcc00">💰 <span id="gd">0</span></div>
     </div>
 
-    <div class="map-grid" id="grid">
-        </div>
-
-    <div id="m-toggle" onclick="toggleM()">🎵</div>
+    <div class="map-grid" id="grid"></div>
 
     <div class="footer">
-        <button class="team-btn" style="background:#ff3333;" onclick="setTeam('red-active')">فريق الصقور</button>
-        <button class="team-btn" style="background:#3385ff;" onclick="setTeam('blue-active')">فريق الذئاب</button>
+        <button class="team-btn" style="background:#ff3333;" onclick="team='red-active'">فريق الصقور</button>
+        <button class="team-btn" style="background:#3385ff;" onclick="team='blue-active'">فريق الذئاب</button>
     </div>
 </div>
 
-<audio id="bgM" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
-
 <script>
-    let team = '', gold = 0, time = 60, isP = false, gameActive = false;
-    const bg = document.getElementById('bgM');
-    const icons = ['🏭','🛖','🏚️','🏢','⛽','🏗️','🏘️','🏠','🚧','🚁','⚓','📡','🏕️','🔩','💎','🛰️'];
-    const names = ['مصنع','هنجر','بيت','قيادة','محطة','مخزن','قرية','فيلا','حاجز','مطار','ميناء','رادار','معسكر','ورشة','منجم','قمر'];
+    let team = '', gold = 0, time = 60, level = 1, gameOn = false;
+    const icons = ['🏭','🛖','🏚️','🏢','⛽','🏗️','🏘️','🏠','🚧','🚁','⚓','📡','🧪','🔥','💎','🛰️'];
 
-    // إنشاء الـ 16 مربع برمجياً
-    const grid = document.getElementById('grid');
-    for(let i=0; i<16; i++) {
-        let div = document.createElement('div');
-        div.className = 'zone';
-        div.onclick = function() { capture(this); };
-        div.innerHTML = `<span class="icon">${icons[i]}</span>${names[i]}`;
-        grid.appendChild(div);
-    }
-
-    function startGame() {
-        let e = document.getElementById('uEmail').value;
-        if(!e || !e.includes('@')) return alert("ادخل الإيميل للمنافسة!");
+    function initGame() {
+        let e = document.getElementById('uE').value;
+        if(!e || !e.includes('@')) return alert("الرجاء إدخال الإيميل!");
         document.getElementById('login').style.display = 'none';
         document.getElementById('gameUI').style.display = 'block';
-        gameActive = true;
-        let timerInterval = setInterval(() => {
-            if(time <= 0) { clearInterval(timerInterval); gameActive = false; finish(); }
-            else { time--; document.getElementById('timeLeft').innerText = time; }
-        }, 1000);
-        if(!isP) toggleM();
+        loadLevel(1);
+        startTimer();
     }
 
-    function setTeam(t) { team = t; }
+    function loadLevel(lv) {
+        level = lv;
+        document.getElementById('lvlText').innerText = "المرحلة: " + level;
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        
+        // تغيير حجم الشبكة بناء على المرحلة
+        let count = (lv === 1) ? 9 : 16;
+        grid.style.gridTemplateColumns = `repeat(${(lv === 1) ? 3 : 4}, 1fr)`;
+        
+        for(let i=0; i<count; i++) {
+            let div = document.createElement('div');
+            div.className = 'zone';
+            div.onclick = function() { capture(this); };
+            div.innerHTML = `<span class="icon">${icons[i]}</span>`;
+            grid.appendChild(div);
+        }
+        gameOn = true;
+    }
 
     function capture(el) {
-        if(!gameActive) return;
-        if(!team) return alert("اختر جيشك أولاً!");
+        if(!gameOn || !team) return;
         if(!el.classList.contains(team)) {
             el.className = 'zone ' + team;
-            gold += 100; // مكافأة أكبر للميدان الأكبر
-            document.getElementById('gold').innerText = gold;
+            gold += (level * 50); 
+            document.getElementById('gd').innerText = gold;
+            checkLevelProgress();
         }
     }
 
-    function finish() {
-        alert("انتهى الوقت! إنجازك اليوم: " + gold + " ذهبة 💰\nإيهاب شرف يحييك على شجاعتك!");
-        location.reload();
+    function checkLevelProgress() {
+        let captured = document.querySelectorAll('.' + team).length;
+        let total = (level === 1) ? 9 : 16;
+        
+        if(captured === total && level < 3) {
+            gameOn = false;
+            alert("مبروك! خلصت المرحلة " + level + ". استعد للي بعدها!");
+            loadLevel(level + 1);
+        }
     }
 
-    function toggleM() {
-        if (!isP) { bg.play(); document.getElementById('m-toggle').innerText = '🔇'; }
-        else { bg.pause(); document.getElementById('m-toggle').innerText = '🎵'; }
-        isP = !isP;
+    function startTimer() {
+        setInterval(() => {
+            if(time > 0) { time--; document.getElementById('tm').innerText = time; }
+            else if(gameOn) { gameOn = false; alert("انتهى الوقت! رصيدك: " + gold); location.reload(); }
+        }, 1000);
     }
 </script>
 </body>
