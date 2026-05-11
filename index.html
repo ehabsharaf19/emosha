@@ -12,14 +12,14 @@
             z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; 
         }
         
-        /* مكان اللوجو */
-        .logo-img {https://ibb.co/ccb2RFQk}
+        /* تنسيق اللوجو الخاص بالقبطان */
+        .logo-img {
             width: 150px; height: 150px;
             border-radius: 50%;
             border: 4px solid #ffcc00;
-            box-shadow: 0 0 20px #ffcc00;
+            box-shadow: 0 0 25px rgba(255, 204, 0, 0.7);
             margin-bottom: 20px;
-            object-fit: cover;
+            object-fit: cover; /* لضمان عدم تمدد الصورة */
         }
 
         .start-btn { 
@@ -29,60 +29,41 @@
         }
 
         /* تنسيق اللعبة الداخلي */
-        body { background: #0a0a0a; color: white; font-family: sans-serif; text-align: center; margin: 0; }
-        .game-header { background: #1a1a1a; padding: 10px; border-bottom: 2px solid #ffcc00; }
+        body { background: #0a0a0a; color: white; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; }
+        .game-header { background: #1a1a1a; padding: 15px; border-bottom: 2px solid #ffcc00; }
         .map-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 380px; margin: 20px auto; padding: 10px; }
-        .zone { aspect-ratio: 1/1; background: #222; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; border: 1px solid #333; }
-        .red { background: #d00 !important; box-shadow: 0 0 10px #f00; }
-        .blue { background: #00d !important; box-shadow: 0 0 10px #00f; }
+        .zone { aspect-ratio: 1/1; background: #222; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; border: 1px solid #333; transition: 0.2s; font-size: 0.9rem;}
+        .icon { font-size: 2rem; margin-bottom: 5px; }
+        
+        /* ألوان السيطرة */
+        .red-team { background: #d00 !important; border-color: #f00; box-shadow: 0 0 15px #f00; color: white; }
+        .blue-team { background: #00d !important; border-color: #00f; box-shadow: 0 0 15px #00f; color: white; }
+
+        .btn-team { padding: 12px 25px; border: none; border-radius: 5px; margin: 5px; cursor: pointer; font-weight: bold; width: 40%; }
     </style>
 </head>
 <body>
 
 <div id="login">
-    <img src="https://via.placeholder.com/150" class="logo-img" id="userLogo" alt="لوجو القبطان">
+    <img src="https://i.ibb.co/C04Yf7D/image.jpg" class="logo-img" alt="لوجو القبطان إيهاب">
     <h1 style="color:#ffcc00; margin:0;">إيموشا: الحرب الكبرى</h1>
-    <p style="color:#aaa;">تطوير: القبطان إيهاب أبو رتال</p>
+    <p style="color:#aaa; margin: 5px 0 20px 0;">تطوير: القبطان إيهاب أبو رتال</p>
     
-    <input type="text" id="playerName" placeholder="ادخل اسم القائد..." style="padding:12px; border-radius:10px; border:none; width:70%; margin:20px 0; text-align:center;">
+    <input type="text" id="playerName" placeholder="ادخل اسم القائد للمعارك..." style="padding:15px; border-radius:10px; border:none; width:75%; text-align:center; font-size:1rem;">
     <button class="start-btn" onclick="startGame()">بدء الغزو ⚔️</button>
 </div>
 
 <div id="gameContent" style="display:none;">
     <div class="game-header">
-        <h3 id="pTitle"></h3>
-        <p>اختر فريقك وابدأ السيطرة على المنشآت</p>
+        <h3 id="pTitle" style="color:#ffcc00; margin: 0 0 10px 0;"></h3>
+        <p style="margin:0; font-size:0.9rem;">اختر فريقك وابدأ السيطرة على المنشآت الحيوية</p>
     </div>
 
     <div class="map-grid">
-        <div class="zone" onclick="hit(this)">🏭<br>مصنع</div>
-        <div class="zone" onclick="hit(this)">🛖<br>هنجر</div>
-        <div class="zone" onclick="hit(this)">🏚️<br>بيت مهجور</div>
-        <div class="zone" onclick="hit(this)">🏢<br>قيادة</div>
-        <div class="zone" onclick="hit(this)">⛽<br>محطة</div>
-        <div class="zone" onclick="hit(this)">🏗️<br>مخزن</div>
-    </div>
-
-    <div style="margin-top:20px;">
-        <button onclick="team='red'" style="background:#d00; color:white; padding:10px 20px; border:none; border-radius:5px;">الصقور</button>
-        <button onclick="team='blue'" style="background:#00d; color:white; padding:10px 20px; border:none; border-radius:5px;">الذئاب</button>
-    </div>
-</div>
-
-<script>
-    let team = '';
-    function startGame() {
-        let name = document.getElementById('playerName').value;
-        if(!name) return alert("ادخل اسمك!");
-        document.getElementById('login').style.display = 'none';
-        document.getElementById('gameContent').style.display = 'block';
-        document.getElementById('pTitle').innerText = "القائد الميداني: " + name;
-    }
-
-    function hit(el) {
-        if(!team) return alert("اختر فريقك أولاً!");
-        el.className = 'zone ' + team;
-    }
-</script>
-</body>
-</html>
+        <div class="zone" onclick="hit(this)"><span class="icon">🏭</span>مصنع</div>
+        <div class="zone" onclick="hit(this)"><span class="icon">🛖</span>هنجر</div>
+        <div class="zone" onclick="hit(this)"><span class="icon">🏚️</span>بيت مهجور</div>
+        <div class="zone" onclick="hit(this)"><span class="icon">🏢</span>قيادة</div>
+        <div class="zone" onclick="hit(this)"><span class="icon">⛽</span>محطة</div>
+        <div class="zone" onclick="hit(this)"><span class="icon">🏗️</span>مخزن</div>
+        <div class="zone" onclick="hit(this)">
