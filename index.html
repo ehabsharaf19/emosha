@@ -5,16 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إيموشا - جواهر المعرفة</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background: #1a1a1a; color: white; margin-top: 50px; }
-        .btn { background: #ffd700; border: none; padding: 15px 30px; font-size: 20px; border-radius: 10px; cursor: pointer; color: black; font-weight: bold; }
-        #score-val { color: #ffd700; font-size: 30px; }
+        body { font-family: Arial, sans-serif; text-align: center; background: #121212; color: gold; margin-top: 50px; }
+        .game-card { background: #1e1e1e; padding: 30px; border-radius: 20px; display: inline-block; border: 2px solid gold; box-shadow: 0 0 20px rgba(255,215,0,0.2); }
+        .btn-gem { background: linear-gradient(45deg, #ffd700, #ffa500); border: none; padding: 20px 40px; font-size: 22px; border-radius: 50px; cursor: pointer; color: black; font-weight: bold; margin-top: 20px; }
+        #score-val { font-size: 40px; display: block; margin: 10px 0; }
     </style>
 </head>
 <body>
 
-    <h1>💎 إيموشا: جواهر المعرفة</h1>
-    <p>نقاطك الحالية: <span id="score-val">0</span></p>
-    <button class="btn" onclick="collectGem()">جمع جوهرة (+20)</button>
+    <div class="game-card">
+        <h1>💎 إيموشا: جواهر المعرفة</h1>
+        <p>مرحباً بك يا قبطان! اضغط لجمع الجواهر:</p>
+        <span id="score-val">0</span>
+        <button class="btn-gem" onclick="addGem()">اضغط لجمع 💎</button>
+    </div>
 
     <script type="module" src="bati5a.js"></script>
 
@@ -22,18 +26,21 @@
         import { firebaseConfig } from './bati5a.js';
 
         let score = 0;
-        window.collectGem = function() {
-            score += 20;
+        window.addGem = function() {
+            score += 10;
             document.getElementById('score-val').innerText = score;
-            
-            // إرسال النقاط للمخزن (Firebase)
-            if(firebaseConfig.databaseURL) {
-                fetch(firebaseConfig.databaseURL + "/scores.json", {
+
+            // إرسال النقطة فوراً لـ Firebase
+            if (firebaseConfig.databaseURL) {
+                fetch(firebaseConfig.databaseURL + "/emosha_players.json", {
                     method: "POST",
-                    body: JSON.stringify({ points: score, time: new Date().toLocaleString() })
-                });
+                    body: JSON.stringify({
+                        points: score,
+                        player: "القبطان إيهاب",
+                        time: new Date().toLocaleTimeString()
+                    })
+                }).then(() => console.log("تم الحفظ في المخزن!"));
             }
-            alert("عاش يا قبطان! جمعت 20 نقطة.");
         };
     </script>
 </body>
