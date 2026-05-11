@@ -1,3 +1,113 @@
+const levels=[
+{
+id:1,
+target:500,
+moves:20
+},
+{
+id:2,
+target:1200,
+moves:18
+},
+{
+id:3,
+target:2500,
+moves:15
+}
+];
+async function generateQuestion(){
+
+const response=await fetch('https://api.openai.com/v1/chat/completions',{
+method:'POST',
+headers:{
+'Content-Type':'application/json',
+'Authorization':'Bearer YOUR_KEY'
+},
+body:JSON.stringify({
+model:'gpt-4o-mini',
+messages:[
+{
+role:'user',
+content:'اعطني سؤال ثقافي قصير مع 3 اختيارات'
+}
+]
+})
+});
+
+const data=await response.json();
+
+console.log(data);
+
+}
+function spinWheel(){
+
+const wheel=document.getElementById('wheel');
+
+const deg=Math.floor(Math.random()*3600);
+
+wheel.style.transform='rotate('+deg+'deg)';
+
+setTimeout(()=>{
+
+const reward=Math.floor(Math.random()*500);
+
+gold+=reward;
+updateUI();
+
+alert('ربحت '+reward+' ذهب');
+
+},4000);
+
+}
+import {
+collection,
+query,
+orderBy,
+limit,
+getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+async function loadLeaderboard(){
+
+const q=query(
+collection(db,'players'),
+orderBy('score','desc'),
+limit(10)
+);
+
+const querySnapshot=await getDocs(q);
+
+querySnapshot.forEach((doc)=>{
+console.log(doc.data());
+});
+
+}
+saveProgress(user.uid,{
+score,
+gold,
+level
+});
+function useBomb(row,col){
+
+for(let r=row-1;r<=row+1;r++){
+
+for(let c=col-1;c<=col+1;c++){
+
+if(grid[r] && grid[r][c]){
+
+grid[r][c].innerText='';
+
+}
+
+}
+
+}
+
+checkMatches();
+
+}
+    npm install @capacitor/android
+npm install cordova-plugin-admob-free
 <!DOCTYPE html>
 <html lang="ar">
 <head>
