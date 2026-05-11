@@ -1,16 +1,13 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إيموشا - حرب المناطق</title>
-    <style>
-        body { background: #121212; color: white; font-family: sans-serif; text-align: center; }
-        .map { display: grid; grid-template-columns: repeat(3, 100px); gap: 10px; justify-content: center; margin-top: 20px; }
-        .zone { width: 100px; height: 100px; background: #333; border: 2px solid #555; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 8px; }
-        .red-team { background: #ff4d4d !important; }
-        .blue-team { background: #4d94ff !important; }
-        .controls { margin-top: 30px; padding: 20px; background: #222; }
+# Emosha Game 🎮
+
+### Description | الوصف
+Emosha is a combat and survival game where groups fight for territory control.
+لعبة "إيموشا" هي لعبة قتالية تعتمد على المجموعات والسيطرة على المناطق في الخريطة من أجل البقاء.
+
+### Goals | الأهداف
+- Teamwork and Strategy.
+- Map Control.
+- Survival of the fittest.
         button { padding: 10px 20px; margin: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
