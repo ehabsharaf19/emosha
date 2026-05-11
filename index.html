@@ -3,55 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إيموشا - نسخة القبطان الاحترافية</title>
-
+    <title>إيموشا: 100 مرحلة</title>
     <style>
-        :root {
-            --gold: #ffd700;
-            --dark-green: #051605;
-        }
+        :root { --blue: #0072ff; --gold: #ffd700; }
+        body { background: #000428; color: white; font-family: sans-serif; margin: 0; text-align: center; overflow: hidden; touch-action: none; }
+        .header { background: linear-gradient(180deg, #0072ff, #00c6ff); padding: 15px; border-bottom: 4px solid var(--gold); }
+        #grid { display: grid; grid-template-columns: repeat(8, 42px); grid-gap: 5px; justify-content: center; margin: 20px auto; background: rgba(0,242,255,0.1); padding: 10px; border-radius: 12px; border: 2px solid #00f2ff; width: fit-content; }
+        .cell { width: 42px; height: 42px; background: #1a2a4a; display: flex; align-items: center; justify-content: center; font-size: 24px; border-radius: 8px; cursor: pointer; }
+        .quiz-box { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #001a33; padding: 25px; border: 3px solid var(--gold); border-radius: 20px; z-index: 100; width: 85%; }
+        .ans-btn { background: var(--gold); color: black; border: none; padding: 12px; margin: 8px 0; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
+    </style>
+</head>
+<body>
 
-        body {
-            background-color: var(--dark-green);
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+<div class="header">
+    <h1 style="margin:0; font-size: 1.4rem;">💎 إيموشا: 100 مرحلة</h1>
+    <div style="display: flex; justify-content: center; gap: 20px; font-weight: bold;">
+        <span>الذهب 💰: <span id="s">0</span></span>
+        <span>المرحلة ⭐: <span id="l">1</span></span>
+    </div>
+</div>
 
-        /* واجهة المستخدم العلوي */
-        .header {
-            width: 100%;
-            padding: 10px;
-            display: flex;
-            justify-content: space-around;
-            background: rgba(0,0,0,0.5);
-            border-bottom: 2px solid var(--gold);
-            position: sticky;
-            top: 0;
-        }
+<div id="grid"></div>
 
-        .stat-box {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
+<div id="qBox" class="quiz-box">
+    <h2 id="qTitle" style="color:var(--gold)"></h2>
+    <p id="qText" style="font-size:1.2rem; margin-bottom: 20px;"></p>
+    <div id="opts"></div>
+</div>
 
-        /* منطقة اللعب */
-        #game-container {
-            margin-top: 50px;
-            display: grid;
-            grid-template-columns: repeat(6, 55px);
-            grid-gap: 8px;
-            padding: 15px;
-            background: #111;
-            border-radius: 15px;
-            box-shadow: 0 0 20px var(--gold);
-        }
+<audio id="m" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg"></audio>
 
-        .item {
-            width: 55px;
-            height: 55px;
-            background: #2a2a2a;
-            border-radius: 10px;
+<script>
+    const types = ['🍎', '🍇', '🍊', '🍓', '💎', '⭐'];
+    // هنا مصفوفة بـ 100 سؤال (وضعت نماذج ويمكنك تكرار النمط لـ 100)
+    const questions = Array.from({length: 100}, (_, i) => ({
+        q: `سؤال المرحلة ${i+1}: ما هو ناتج ${i} + ${i+1}؟`,
+        a: [`${i + (i+1)}`, `${i + i}`, `${i + 5}`],
+        c: 0
+    }));
+
+    let score = 0, level = 1, first = null, cells = [];
+
+    function start() {
+        const g = document.getElementById('grid');
+        g.innerHTML = ''; cells = [];
+        for (let i = 0; i < 64; i++) {
+            const d = document.createElement('div');
+            d.className = 'cell';
+            d.innerHTML = types[Math.floor(Math.random() * types.length)];
+            d.onclick = () => { document.getElementById('m').volume = 0.05; document.getElementById('m').play(); handle(d, i); };
+            g.appendChild(d); cells.push(d);
+        }
+        check(false);
+    }
+
+    function handle(d, i) {
+        if (!first) { first = {d, i}; d.style.outline = "3px solid white"; } 
+        else {
+            let diff = Math.abs(first.i - i);
+            if ((diff === 1 && Math.floor(first.i/8) === Math.floor(i/8)) || diff === 8) {
+                let t1 = first.d.innerHTML; let t2 = d.innerHTML;
+                first.d.innerHTML = t2; d.innerHTML = t1;
+                if (!check(true)) { setTimeout(() => { first.d.innerHTML = t1; d.innerHTML = t2; }, 250); }
+            }
+            first.d.style.outline = "none"; first = null;
+        }
+    }
+
+    function check(givePoints) {
+        let toRemove = new Set();
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 6; c++) {
+                let idx = r * 8 + c;
+                if (cells[idx].innerHTML === cells[idx+1].innerHTML && cells[idx].innerHTML === cells[idx+2].innerHTML) 
+                { toRemove.add(idx); toRemove.add(idx+1); toRemove.add(idx+2); }
+            }
+        }
+        for (let c = 0; c < 8; c++) {
+            for (let r = 0; r < 6; r++) {
+                let idx = r * 8 + c;
+                if (cells[idx].innerHTML === cells[idx+8].innerHTML && cells[idx].innerHTML === cells[idx+16].innerHTML) 
+                { toRemove.add(idx); toRemove.add(idx+8); toRemove.add(idx+16); }
+            }
+        }
+        if (toRemove.size > 0) {
+            if (givePoints) {
+                score += toRemove.size * 10;
+                document.getElementById('s').innerText = score;
+                if (score >= 100) { showQuiz(); return true; }
+            }
+            toRemove.forEach(idx => cells[idx].innerHTML = '');
+            setTimeout(fill, 300);
+            return true;
+        }
+        return false;
+    }
+
+    function showQuiz() {
+        const box = document.getElementById('qBox');
+        const qData = questions[level - 1];
+        document.getElementById('qTitle').innerText = `المرحلة ${level}`;
+        document.getElementById('qText').innerText = qData.q;
+        const optDiv = document.getElementById('opts'); optDiv.innerHTML = '';
+        qData.a.forEach((opt, idx) => {
+            const b = document.createElement('button'); b.className = 'ans-btn'; b.innerText = opt;
+            b.onclick = () => {
+                if(idx === qData.c) { box.style.display = 'none'; level++; score = 0;
+                    document.getElementById('l').innerText = level; document.getElementById('s').innerText = score; start();
+                } else { alert("خطأ! حاول مرة أخرى"); }
+            };
+            optDiv.appendChild(b);
+        });
+        box.style.display = 'block';
+    }
+
+    function fill() {
+        cells.forEach(c => { if (c.innerHTML === '') c.innerHTML = types[Math.floor(Math.random() * types.length)]; });
+        check(true);
+    }
+    window.onload = start;
+</script>
+</body>
+</html>
