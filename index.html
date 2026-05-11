@@ -1,63 +1,306 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إيموشا: جواهر المعرفة - إيهاب شرف</title>
-    <style>
-        /* التنسيق الأساسي لضمان عدم ظهور شاشة سوداء */
-        body { background: #000; color: white; font-family: sans-serif; margin: 0; padding: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        #login { position: absolute; inset: 0; background: radial-gradient(circle, #002200, #000); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
-        
-        /* إطار اللوجو الآمن لظهور كلمة EMOSHA كاملة */
-        .logo-frame { width: 170px; height: 170px; border-radius: 50%; border: 4px solid #ffcc00; margin-bottom: 20px; background: #000; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px #ffcc00; }
-        .logo-frame img { width: 85%; height: 85%; object-fit: contain; }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Emousha Gems | إيموشا</title>
 
-        .btn-play { background: #ffcc00; color: #000; padding: 15px 40px; border: none; border-radius: 30px; font-weight: bold; font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 10px rgba(255,204,0,0.4); }
-        
-        /* واجهة اللعبة - الجواهر */
-        #game { display: none; width: 100%; height: 100%; flex-direction: column; }
-        .bar { background: #111; padding: 15px; display: flex; justify-content: space-around; border-bottom: 2px solid #ffcc00; }
-        .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; padding: 15px; margin: auto; background: #222; border-radius: 12px; max-width: 380px; }
-        .gem { aspect-ratio: 1/1; background: #333; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; border-radius: 8px; cursor: pointer; }
-    </style>
+<style>
+
+body{
+    margin:0;
+    font-family:Tahoma;
+    background:#0f172a;
+    color:white;
+    overflow-x:hidden;
+}
+
+header{
+    background:linear-gradient(90deg,#7c3aed,#2563eb);
+    padding:20px;
+    text-align:center;
+    box-shadow:0 0 20px rgba(0,0,0,.5);
+}
+
+header h1{
+    margin:0;
+    font-size:35px;
+}
+
+header p{
+    opacity:.8;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+}
+
+.game-info{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:20px;
+    background:#1e293b;
+    padding:15px;
+    border-radius:15px;
+}
+
+.board{
+    width:480px;
+    height:480px;
+    margin:auto;
+    display:grid;
+    grid-template-columns:repeat(8,1fr);
+    gap:5px;
+}
+
+.gem{
+    width:55px;
+    height:55px;
+    border-radius:12px;
+    cursor:pointer;
+    transition:.2s;
+    box-shadow:0 0 10px rgba(255,255,255,.2);
+}
+
+.gem:hover{
+    transform:scale(1.08);
+}
+
+.red{background:#ef4444;}
+.blue{background:#3b82f6;}
+.green{background:#22c55e;}
+.yellow{background:#facc15;}
+.purple{background:#a855f7;}
+.orange{background:#f97316;}
+
+.question-box{
+    margin-top:25px;
+    background:#1e293b;
+    padding:20px;
+    border-radius:15px;
+    text-align:center;
+}
+
+button{
+    background:#7c3aed;
+    color:white;
+    border:none;
+    padding:12px 25px;
+    border-radius:10px;
+    cursor:pointer;
+    margin-top:10px;
+    font-size:16px;
+}
+
+button:hover{
+    background:#6d28d9;
+}
+
+footer{
+    margin-top:40px;
+    text-align:center;
+    padding:20px;
+    background:#111827;
+}
+
+footer a{
+    color:#60a5fa;
+    text-decoration:none;
+    display:block;
+    margin-top:8px;
+}
+
+@media(max-width:600px){
+
+.board{
+    width:320px;
+    height:320px;
+}
+
+.gem{
+    width:35px;
+    height:35px;
+}
+
+}
+
+</style>
 </head>
+
 <body>
 
-<div id="login">
-    <div class="logo-frame">
-        <img src="https://i.ibb.co/SXxQbqVh/Screenshot-Chat-GPT.jpg" alt="EMOSHA">
-    </div>
-    <h2 style="color:#ffcc00">إيموشا: جواهر المعرفة</h2>
-    <p>بإشراف القبطان إيهاب شرف</p>
-    <button class="btn-play" onclick="start()">دخول تجربة الجواهر 💎</button>
+<header>
+    <h1>💎 Emousha Gems</h1>
+    <p>إيموشا | جواهر المعرفة</p>
+</header>
+
+<div class="container">
+
+<div class="game-info">
+    <h2>🏆 النقاط: <span id="score">0</span></h2>
+    <h2>⭐ المستوى: <span id="level">1</span></h2>
 </div>
 
-<div id="game">
-    <div class="bar">
-        <div style="color:#ffcc00">💰 ذهب: <span id="g">0</span></div>
-        <div style="color:#ff4444">⏳ وقت: <span id="t">60</span></div>
-    </div>
-    <div class="grid" id="grid"></div>
+<div class="board" id="board"></div>
+
+<div class="question-box">
+    <h2>📚 سؤال المعرفة</h2>
+    <p id="question">ما هي عاصمة مصر ؟</p>
+
+    <button onclick="checkAnswer('القاهرة')">القاهرة</button>
+    <button onclick="checkAnswer('الإسكندرية')">الإسكندرية</button>
+    <button onclick="checkAnswer('الأقصر')">الأقصر</button>
+
 </div>
+
+</div>
+
+<footer>
+
+<h3>🚀 تطوير: إيهاب شرف</h3>
+
+<a href="https://www.facebook.com/share/1CdBC5U5rw/" target="_blank">
+🔵 صفحة فيسبوك
+</a>
+
+<a href="https://youtube.com/@ehabsharaf19?si=Fzm9DBHyxm6ZN-lm" target="_blank">
+🔴 قناة يوتيوب
+</a>
+
+<p>© 2026 جميع الحقوق محفوظة</p>
+
+</footer>
 
 <script>
-    function start() {
-        document.getElementById('login').style.display = 'none';
-        document.getElementById('game').style.display = 'flex';
-        const icons = ['💎', '⭐', '💣', '🛡️', '🔱', '🧿'];
-        const grid = document.getElementById('grid');
-        for(let i=0; i<36; i++) {
-            let d = document.createElement('div');
-            d.className = 'gem';
-            d.innerHTML = icons[Math.floor(Math.random()*icons.length)];
-            d.onclick = function() { 
-                this.style.background = '#444'; 
-                document.getElementById('g').innerText = parseInt(document.getElementById('g').innerText) + 10;
-            };
-            grid.appendChild(d);
-        }
+
+const board=document.getElementById("board");
+const colors=["red","blue","green","yellow","purple","orange"];
+
+let score=localStorage.getItem("score")
+? parseInt(localStorage.getItem("score"))
+:0;
+
+document.getElementById("score").innerText=score;
+
+function createBoard(){
+
+    for(let i=0;i<64;i++){
+
+        const gem=document.createElement("div");
+
+        gem.classList.add("gem");
+
+        let randomColor=colors[Math.floor(Math.random()*colors.length)];
+
+        gem.classList.add(randomColor);
+
+        gem.addEventListener("click",()=>{
+
+            collectGem(gem,randomColor);
+
+        });
+
+        board.appendChild(gem);
+
     }
+
+}
+
+function collectGem(gem,color){
+
+    gem.style.opacity="0";
+
+    setTimeout(()=>{
+
+        gem.style.opacity="1";
+
+        gem.className="gem";
+
+        let newColor=colors[Math.floor(Math.random()*colors.length)];
+
+        gem.classList.add(newColor);
+
+    },300);
+
+    score+=10;
+
+    document.getElementById("score").innerText=score;
+
+    localStorage.setItem("score",score);
+
+    if(score % 100===0){
+
+        askQuestion();
+
+    }
+
+}
+
+const questions=[
+
+{
+q:"ما هي عاصمة فرنسا ؟",
+a:"باريس",
+choices:["باريس","روما","مدريد"]
+},
+
+{
+q:"كم عدد كواكب المجموعة الشمسية ؟",
+a:"8",
+choices:["7","8","9"]
+},
+
+{
+q:"ما هو أكبر محيط في العالم ؟",
+a:"الهادئ",
+choices:["الأطلسي","الهندي","الهادئ"]
+}
+
+];
+
+function askQuestion(){
+
+    let random=questions[Math.floor(Math.random()*questions.length)];
+
+    document.getElementById("question").innerText=random.q;
+
+    let buttons=document.querySelectorAll(".question-box button");
+
+    buttons.forEach((btn,index)=>{
+
+        btn.innerText=random.choices[index];
+
+        btn.onclick=()=>checkAnswer(random.choices[index],random.a);
+
+    });
+
+}
+
+function checkAnswer(answer,correct){
+
+    if(answer===correct){
+
+        alert("✅ إجابة صحيحة +50 نقطة");
+
+        score+=50;
+
+    }else{
+
+        alert("❌ إجابة خاطئة");
+
+    }
+
+    document.getElementById("score").innerText=score;
+
+    localStorage.setItem("score",score);
+
+}
+
+createBoard();
+
 </script>
+
 </body>
 </html>
