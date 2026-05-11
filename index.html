@@ -5,18 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إيموشا: جواهر المعرفة</title>
     <style>
+        :root { --blue: #0072ff; --gold: #ffd700; }
         body { background: #000428; color: white; font-family: sans-serif; margin: 0; text-align: center; overflow: hidden; touch-action: none; }
-        .header { background: linear-gradient(180deg, #0072ff, #00c6ff); padding: 20px; border-bottom: 3px solid #ffd700; }
-        .stats { display: flex; justify-content: center; gap: 20px; font-weight: bold; margin: 10px 0; }
-        #grid { display: grid; grid-template-columns: repeat(8, 42px); grid-gap: 5px; justify-content: center; margin: 20px auto; background: rgba(0,242,255,0.1); padding: 10px; border-radius: 12px; border: 2px solid #00f2ff; width: fit-content; }
-        .cell { width: 42px; height: 42px; background: #1a2a4a; display: flex; align-items: center; justify-content: center; font-size: 24px; border-radius: 6px; cursor: pointer; user-select: none; }
-        .active { outline: 3px solid white; transform: scale(1.1); }
+        .header { background: linear-gradient(180deg, #0072ff, #00c6ff); padding: 15px; border-bottom: 4px solid var(--gold); }
+        .stats { display: flex; justify-content: center; gap: 20px; font-weight: bold; font-size: 1.1rem; }
+        #grid { display: grid; grid-template-columns: repeat(8, 42px); grid-gap: 5px; justify-content: center; margin: 15px auto; background: rgba(0,242,255,0.1); padding: 10px; border-radius: 12px; border: 2px solid #00f2ff; width: fit-content; }
+        .cell { width: 42px; height: 42px; background: #1a2a4a; display: flex; align-items: center; justify-content: center; font-size: 24px; border-radius: 6px; cursor: pointer; user-select: none; transition: 0.2s; }
+        .active { outline: 3px solid white; transform: scale(1.1); z-index: 5; }
+        .quiz-box { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #112240; padding: 25px; border: 3px solid var(--gold); border-radius: 20px; z-index: 100; width: 85%; box-shadow: 0 0 30px #000; }
+        .ans-btn { background: var(--gold); color: black; border: none; padding: 10px 20px; margin: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1 style="margin:0;">💎 إيموشا: جواهر المعرفة</h1>
+    <h1 style="margin:0; font-size: 1.5rem;">💎 إيموشا: جواهر المعرفة</h1>
     <div class="stats">
         <span>الذهب 💰: <span id="s">0</span></span>
         <span>المرحلة ⭐: <span id="l">1</span></span>
@@ -25,11 +28,21 @@
 
 <div id="grid"></div>
 
+<div id="qBox" class="quiz-box">
+    <h2 style="color:var(--gold)">سؤال العبور للمرحلة التالية</h2>
+    <p id="qText" style="font-size:1.2rem;"></p>
+    <div id="opts"></div>
+</div>
+
 <audio id="m" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg"></audio>
 
 <script>
-    const types = ['🍎', '🍇', '🍊', '🍓', '🍋', '💎'];
-    let score = 0, first = null, cells = [];
+    const types = ['🍎', '🍇', '🍊', '🍓', '💎', '⭐'];
+    const questions = [
+        {q: "ما هي عاصمة مصر؟", a: ["القاهرة", "الإسكندرية", "أسوان"], c: 0},
+        {q: "ما هو أسرع حيوان؟", a: ["الأسد", "الفهد", "الغزال"], c: 1}
+    ];
+    let score = 0, level = 1, first = null, cells = [];
 
     function start() {
         const g = document.getElementById('grid');
@@ -39,27 +52,22 @@
             d.className = 'cell';
             d.innerHTML = types[Math.floor(Math.random() * types.length)];
             d.onclick = () => {
-                document.getElementById('m').play().catch(()=>{});
+                let music = document.getElementById('m');
+                music.volume = 0.2; // هنا الموسيقى هادية جداً
+                music.play().catch(()=>{});
                 handle(d, i);
             };
-            g.appendChild(d);
-            cells.push(d);
+            g.appendChild(d); cells.push(d);
         }
     }
 
     function handle(d, i) {
-        if (!first) {
-            first = {d, i}; d.classList.add('active');
-        } else {
+        if (!first) { first = {d, i}; d.classList.add('active'); } 
+        else {
             let diff = Math.abs(first.i - i);
-            // حركة واحدة فقط (يمين، شمال، فوق، تحت)
             if (diff === 1 || diff === 8) {
-                let t = first.d.innerHTML;
-                first.d.innerHTML = d.innerHTML;
-                d.innerHTML = t;
-                if (!check()) { // لو مفيش 3 مفرقعين، يرجع مكانه
-                    setTimeout(() => { let x = first.d.innerHTML; first.d.innerHTML = d.innerHTML; d.innerHTML = x; }, 300);
-                }
+                let t = first.d.innerHTML; first.d.innerHTML = d.innerHTML; d.innerHTML = t;
+                if (!check()) { setTimeout(() => { let x = first.d.innerHTML; first.d.innerHTML = d.innerHTML; d.innerHTML = x; }, 300); }
             }
             first.d.classList.remove('active'); first = null;
         }
@@ -67,20 +75,44 @@
 
     function check() {
         let found = false;
-        // فحص أفقي ورأسي لـ 3 قطع أو أكثر
         for (let i = 0; i < 64; i++) {
-            if (i % 8 < 6 && cells[i].innerHTML === cells[i+1].innerHTML && cells[i].innerHTML === cells[i+2].innerHTML) {
+            if (i % 8 < 6 && cells[i].innerHTML !== '' && cells[i].innerHTML === cells[i+1].innerHTML && cells[i].innerHTML === cells[i+2].innerHTML) {
                 cells[i].innerHTML = cells[i+1].innerHTML = cells[i+2].innerHTML = ''; found = true;
             }
-            if (i < 48 && cells[i].innerHTML === cells[i+8].innerHTML && cells[i].innerHTML === cells[i+16].innerHTML) {
+            if (i < 48 && cells[i].innerHTML !== '' && cells[i].innerHTML === cells[i+8].innerHTML && cells[i].innerHTML === cells[i+16].innerHTML) {
                 cells[i].innerHTML = cells[i+8].innerHTML = cells[i+16].innerHTML = ''; found = true;
             }
         }
         if (found) {
-            score += 10; document.getElementById('s').innerText = score;
+            score += 20; document.getElementById('s').innerText = score;
+            if (score >= 100) showQuiz(); // الانتقال للمرحلة بعد 100 نقطة
             setTimeout(fill, 300);
         }
         return found;
+    }
+
+    function showQuiz() {
+        const box = document.getElementById('qBox');
+        const qData = questions[(level-1) % questions.length];
+        document.getElementById('qText').innerText = qData.q;
+        const optDiv = document.getElementById('opts');
+        optDiv.innerHTML = '';
+        qData.a.forEach((opt, idx) => {
+            const b = document.createElement('button');
+            b.className = 'ans-btn';
+            b.innerText = opt;
+            b.onclick = () => {
+                if(idx === qData.c) {
+                    box.style.display = 'none';
+                    level++; score = 0;
+                    document.getElementById('l').innerText = level;
+                    document.getElementById('s').innerText = score;
+                    start();
+                } else { alert("ركز يا قبطان!"); }
+            };
+            optDiv.appendChild(b);
+        });
+        box.style.display = 'block';
     }
 
     function fill() {
