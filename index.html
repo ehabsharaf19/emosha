@@ -5,126 +5,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إيموشا: جواهر المعرفة</title>
     <style>
-        :root { --blue: #0072ff; --gold: #ffd700; }
-        body { background: #000428; color: white; font-family: sans-serif; margin: 0; text-align: center; touch-action: none; }
-        
-        /* الواجهة الزرقاء اللي بتحبها */
-        .header-blue { background: linear-gradient(180deg, #0072ff, #00c6ff); padding: 20px; border-bottom: 4px solid var(--gold); }
-        .stats { display: flex; justify-content: center; gap: 20px; font-weight: bold; margin-top: 10px; }
-
-        /* منطقة اللعب */
-        #game-board { 
-            display: grid; grid-template-columns: repeat(8, 42px); grid-gap: 5px; 
-            justify-content: center; margin: 30px auto; padding: 10px; 
-            background: rgba(0, 242, 255, 0.1); border: 2px solid #00f2ff; 
-            border-radius: 15px; width: fit-content; box-shadow: 0 0 20px #00f2ff;
-        }
-        .gem { width: 42px; height: 42px; background: #1a2a4a; display: flex; align-items: center; justify-content: center; font-size: 24px; border-radius: 8px; cursor: pointer; user-select: none; }
-        .selected { outline: 3px solid white; transform: scale(1.1); z-index: 10; }
+        body { background: #000428; color: white; font-family: sans-serif; margin: 0; text-align: center; overflow: hidden; touch-action: none; }
+        .header { background: linear-gradient(180deg, #0072ff, #00c6ff); padding: 20px; border-bottom: 3px solid #ffd700; }
+        .stats { display: flex; justify-content: center; gap: 20px; font-weight: bold; margin: 10px 0; }
+        #grid { display: grid; grid-template-columns: repeat(8, 42px); grid-gap: 5px; justify-content: center; margin: 20px auto; background: rgba(0,242,255,0.1); padding: 10px; border-radius: 12px; border: 2px solid #00f2ff; width: fit-content; }
+        .cell { width: 42px; height: 42px; background: #1a2a4a; display: flex; align-items: center; justify-content: center; font-size: 24px; border-radius: 6px; cursor: pointer; user-select: none; }
+        .active { outline: 3px solid white; transform: scale(1.1); }
     </style>
 </head>
 <body>
 
-<div class="header-blue">
+<div class="header">
     <h1 style="margin:0;">💎 إيموشا: جواهر المعرفة</h1>
     <div class="stats">
-        <span>الذهب 💰: <span id="scr">0</span></span>
-        <span>المرحلة ⭐: <span id="lvl">1</span></span>
+        <span>الذهب 💰: <span id="s">0</span></span>
+        <span>المرحلة ⭐: <span id="l">1</span></span>
     </div>
 </div>
 
-<div id="game-board"></div>
+<div id="grid"></div>
 
-<audio id="candyMusic" loop>
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg">
-</audio>
+<audio id="m" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg"></audio>
 
 <script>
-    const gemTypes = ['💎', '🧿', '⭐', '👑', '🔱', '🧿'];
-    let score = 0, level = 1, firstGem = null, board = [];
+    const types = ['🍎', '🍇', '🍊', '🍓', '🍋', '💎'];
+    let score = 0, first = null, cells = [];
 
-    function init() {
-        const grid = document.getElementById('game-board');
-        grid.innerHTML = '';
-        board = [];
+    function start() {
+        const g = document.getElementById('grid');
+        g.innerHTML = ''; cells = [];
         for (let i = 0; i < 64; i++) {
-            const div = document.createElement('div');
-            div.className = 'gem';
-            div.innerHTML = gemTypes[Math.floor(Math.random() * gemTypes.length)];
-            div.dataset.id = i;
-            div.onclick = () => handleGemClick(div);
-            grid.appendChild(div);
-            board.push(div);
+            const d = document.createElement('div');
+            d.className = 'cell';
+            d.innerHTML = types[Math.floor(Math.random() * types.length)];
+            d.onclick = () => {
+                document.getElementById('m').play().catch(()=>{});
+                handle(d, i);
+            };
+            g.appendChild(d);
+            cells.push(d);
         }
-        // تشغيل الموسيقى
-        document.body.onclick = () => document.getElementById('candyMusic').play();
     }
 
-    function handleGemClick(gem) {
-        if (!firstGem) {
-            firstGem = gem;
-            gem.classList.add('selected');
+    function handle(d, i) {
+        if (!first) {
+            first = {d, i}; d.classList.add('active');
         } else {
-            const id1 = parseInt(firstGem.dataset.id);
-            const id2 = parseInt(gem.dataset.id);
-            
-            // قيد الحركة: خطوة واحدة فقط (يمين، شمال، فوق، تحت)
-            const validMoves = [id1-1, id1+1, id1-8, id1+8];
-            
-            if (validMoves.includes(id2)) {
-                swap(firstGem, gem);
-                if (!checkMatches()) {
-                    // لو مش 3 مفرقعين، رجعهم مكانهم (لا يفرقع 2 أو أقل)
-                    setTimeout(() => swap(firstGem, gem), 300);
+            let diff = Math.abs(first.i - i);
+            // حركة واحدة فقط (يمين، شمال، فوق، تحت)
+            if (diff === 1 || diff === 8) {
+                let t = first.d.innerHTML;
+                first.d.innerHTML = d.innerHTML;
+                d.innerHTML = t;
+                if (!check()) { // لو مفيش 3 مفرقعين، يرجع مكانه
+                    setTimeout(() => { let x = first.d.innerHTML; first.d.innerHTML = d.innerHTML; d.innerHTML = x; }, 300);
                 }
             }
-            firstGem.classList.remove('selected');
-            firstGem = null;
+            first.d.classList.remove('active'); first = null;
         }
     }
 
-    function swap(g1, g2) {
-        let temp = g1.innerHTML;
-        g1.innerHTML = g2.innerHTML;
-        g2.innerHTML = temp;
-    }
-
-    function checkMatches() {
-        let matched = false;
-        // فحص أفقي (3 أو أكثر)
+    function check() {
+        let found = false;
+        // فحص أفقي ورأسي لـ 3 قطع أو أكثر
         for (let i = 0; i < 64; i++) {
-            if (i % 8 < 6) {
-                if (board[i].innerHTML === board[i+1].innerHTML && board[i].innerHTML === board[i+2].innerHTML) {
-                    board[i].style.opacity = '0'; board[i+1].style.opacity = '0'; board[i+2].style.opacity = '0';
-                    score += 30; matched = true;
-                }
+            if (i % 8 < 6 && cells[i].innerHTML === cells[i+1].innerHTML && cells[i].innerHTML === cells[i+2].innerHTML) {
+                cells[i].innerHTML = cells[i+1].innerHTML = cells[i+2].innerHTML = ''; found = true;
+            }
+            if (i < 48 && cells[i].innerHTML === cells[i+8].innerHTML && cells[i].innerHTML === cells[i+16].innerHTML) {
+                cells[i].innerHTML = cells[i+8].innerHTML = cells[i+16].innerHTML = ''; found = true;
             }
         }
-        // فحص رأسي (3 أو أكثر)
-        for (let i = 0; i < 48; i++) {
-            if (board[i].innerHTML === board[i+8].innerHTML && board[i].innerHTML === board[i+16].innerHTML) {
-                board[i].style.opacity = '0'; board[i+8].style.opacity = '0'; board[i+16].style.opacity = '0';
-                score += 30; matched = true;
-            }
+        if (found) {
+            score += 10; document.getElementById('s').innerText = score;
+            setTimeout(fill, 300);
         }
-
-        if (matched) {
-            document.getElementById('scr').innerText = score;
-            setTimeout(refill, 400);
-        }
-        return matched;
+        return found;
     }
 
-    function refill() {
-        board.forEach(g => {
-            if (g.style.opacity === '0') {
-                g.innerHTML = gemTypes[Math.floor(Math.random() * gemTypes.length)];
-                g.style.opacity = '1';
-            }
-        });
+    function fill() {
+        cells.forEach(c => { if (c.innerHTML === '') c.innerHTML = types[Math.floor(Math.random() * types.length)]; });
+        check();
     }
 
-    window.onload = init;
+    window.onload = start;
 </script>
 </body>
 </html>
