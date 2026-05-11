@@ -3,116 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إيموشا: نظام المراحل - إيهاب شرف</title>
+    <title>إيموشا: تحدي القبطان - إيهاب شرف</title>
     <style>
         body { background: #000; color: white; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; overflow-x: hidden; }
         #login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #002200 0%, #000 100%); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .logo-container { width: 150px; height: 150px; border-radius: 50%; border: 3px solid #ffcc00; box-shadow: 0 0 25px rgba(255,204,0,0.4); margin-bottom: 10px; overflow: hidden; }
+        .logo-container { width: 140px; height: 140px; border-radius: 50%; border: 3px solid #ffcc00; margin-bottom: 10px; overflow: hidden; }
         .logo-img { width: 100%; height: 100%; object-fit: contain; }
-        .start-btn { background: linear-gradient(45deg, #ffcc00, #ffaa00); padding: 15px 40px; border-radius: 30px; color: black; border: none; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
-        input { padding: 12px; border-radius: 10px; border: 1px solid #ffcc00; width: 80%; max-width: 280px; text-align: center; margin-bottom: 15px; background: rgba(255,255,255,0.1); color: white; }
-
-        #gameUI { display: none; }
-        .top-bar { background: #111; padding: 10px; border-bottom: 2px solid #ffcc00; display: flex; justify-content: space-around; align-items: center; }
-        .lvl-info { color: #ffcc00; font-weight: bold; }
-        .timer { color: #ff3333; border: 1px solid #ff3333; padding: 2px 10px; border-radius: 15px; }
-
-        /* شبكة ديناميكية */
-        .map-grid { display: grid; gap: 8px; max-width: 95%; margin: 15px auto; padding: 5px; justify-content: center; }
-        .zone { aspect-ratio: 1/1; background: #1a1a1a; border-radius: 10px; border: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.65rem; cursor: pointer; }
-        .icon { font-size: 1.5rem; margin-bottom: 2px; }
+        .start-btn { background: linear-gradient(45deg, #ffcc00, #ffaa00); padding: 15px 40px; border-radius: 30px; color: black; border: none; font-weight: bold; cursor: pointer; }
         
-        .red-active { background: #ff3333 !important; box-shadow: 0 0 10px #ff3333; border: none; }
-        .blue-active { background: #3385ff !important; box-shadow: 0 0 10px #3385ff; border: none; }
-
-        .footer { position: fixed; bottom: 0; width: 100%; background: #111; padding: 10px; display: flex; justify-content: center; gap: 8px; }
-        .team-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; color: white; }
+        #gameUI { display: none; }
+        .top-bar { background: #111; padding: 10px; border-bottom: 2px solid #ffcc00; display: flex; justify-content: space-around; font-weight: bold; }
+        .map-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-width: 95%; margin: 15px auto; }
+        .zone { aspect-ratio: 1/1; background: #1a1a1a; border-radius: 8px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+        
+        .user-team { background: #3385ff !important; box-shadow: 0 0 10px #3385ff; border: none; }
+        .ai-team { background: #ff3333 !important; box-shadow: 0 0 10px #ff3333; border: none; }
+        
+        .footer { position: fixed; bottom: 0; width: 100%; background: #111; padding: 15px; display: flex; justify-content: center; gap: 10px; }
+        .team-select { padding: 10px 20px; border-radius: 8px; border: 2px solid white; cursor: pointer; font-weight: bold; }
+        .active-sel { border-color: #ffcc00; background: #333; }
     </style>
 </head>
 <body>
 
 <div id="login">
     <div class="logo-container"><img src="https://i.ibb.co/SXxQbqVh/Screenshot-Chat-GPT.jpg" class="logo-img"></div>
-    <h3 style="color:#ffcc00; margin:5px;">إيموشا: صراع المراحل</h3>
-    <p style="color:#aaa; font-size:0.85rem; margin-bottom: 15px;">المطور: القبطان إيهاب شرف</p>
-    <input type="email" id="uE" placeholder="سجل دخولك يا بطل...">
-    <button class="start-btn" onclick="initGame()">دخول المرحلة الأولى ⚔️</button>
+    <h3 style="color:#ffcc00;">إيموشا: التحدي المباشر</h3>
+    <p style="color:#aaa;">المطور: إيهاب شرف</p>
+    <div style="margin-bottom: 20px;">
+        <span id="b1" class="team-select" onclick="pick('blue-active', 'b1')">فريق الذئاب (أنت)</span>
+        <span id="b2" class="team-select" onclick="pick('red-active', 'b2')">فريق الصقور (أنت)</span>
+    </div>
+    <button class="start-btn" onclick="start()">ابدأ المعركة ضد الكمبيوتر ⚔️</button>
 </div>
 
 <div id="gameUI">
     <div class="top-bar">
-        <div class="lvl-info" id="lvlText">المرحلة: 1</div>
-        <div class="timer">⏳ <span id="tm">60</span>s</div>
-        <div style="color:#ffcc00">💰 <span id="gd">0</span></div>
+        <div style="color:#3385ff">أنت: <span id="uScore">0</span></div>
+        <div style="color:#ff3333">الكمبيوتر: <span id="aiScore">0</span></div>
+        <div style="color:#ff3333">⏳ <span id="tm">30</span>s</div>
     </div>
-
     <div class="map-grid" id="grid"></div>
-
-    <div class="footer">
-        <button class="team-btn" style="background:#ff3333;" onclick="team='red-active'">فريق الصقور</button>
-        <button class="team-btn" style="background:#3385ff;" onclick="team='blue-active'">فريق الذئاب</button>
-    </div>
 </div>
 
 <script>
-    let team = '', gold = 0, time = 60, level = 1, gameOn = false;
-    const icons = ['🏭','🛖','🏚️','🏢','⛽','🏗️','🏘️','🏠','🚧','🚁','⚓','📡','🧪','🔥','💎','🛰️'];
+    let myTeam = '', aiTeam = '', time = 30, gameActive = false;
+    const grid = document.getElementById('grid');
 
-    function initGame() {
-        let e = document.getElementById('uE').value;
-        if(!e || !e.includes('@')) return alert("الرجاء إدخال الإيميل!");
+    function pick(t, id) {
+        myTeam = t;
+        aiTeam = (t === 'blue-active') ? 'red-active' : 'blue-active';
+        document.querySelectorAll('.team-select').forEach(el => el.classList.remove('active-sel'));
+        document.getElementById(id).classList.add('active-sel');
+    }
+
+    function start() {
+        if(!myTeam) return alert("اختر فريقك أولاً!");
         document.getElementById('login').style.display = 'none';
         document.getElementById('gameUI').style.display = 'block';
-        loadLevel(1);
-        startTimer();
-    }
-
-    function loadLevel(lv) {
-        level = lv;
-        document.getElementById('lvlText').innerText = "المرحلة: " + level;
-        const grid = document.getElementById('grid');
-        grid.innerHTML = '';
-        
-        // تغيير حجم الشبكة بناء على المرحلة
-        let count = (lv === 1) ? 9 : 16;
-        grid.style.gridTemplateColumns = `repeat(${(lv === 1) ? 3 : 4}, 1fr)`;
-        
-        for(let i=0; i<count; i++) {
-            let div = document.createElement('div');
-            div.className = 'zone';
-            div.onclick = function() { capture(this); };
-            div.innerHTML = `<span class="icon">${icons[i]}</span>`;
-            grid.appendChild(div);
+        for(let i=0; i<16; i++) {
+            let d = document.createElement('div');
+            d.className = 'zone';
+            d.onclick = function() { if(gameActive) this.className = 'zone user-team'; update(); };
+            d.innerHTML = '🏗️';
+            grid.appendChild(d);
         }
-        gameOn = true;
+        gameActive = true;
+        runGame();
     }
 
-    function capture(el) {
-        if(!gameOn || !team) return;
-        if(!el.classList.contains(team)) {
-            el.className = 'zone ' + team;
-            gold += (level * 50); 
-            document.getElementById('gd').innerText = gold;
-            checkLevelProgress();
-        }
-    }
+    function runGame() {
+        // ذكاء اصطناعي يحاول السيطرة كل ثانية
+        let aiInterval = setInterval(() => {
+            if(!gameActive) { clearInterval(aiInterval); return; }
+            let zones = document.querySelectorAll('.zone');
+            let rand = Math.floor(Math.random() * 16);
+            zones[rand].className = 'zone ai-team';
+            update();
+        }, 800);
 
-    function checkLevelProgress() {
-        let captured = document.querySelectorAll('.' + team).length;
-        let total = (level === 1) ? 9 : 16;
-        
-        if(captured === total && level < 3) {
-            gameOn = false;
-            alert("مبروك! خلصت المرحلة " + level + ". استعد للي بعدها!");
-            loadLevel(level + 1);
-        }
-    }
-
-    function startTimer() {
-        setInterval(() => {
-            if(time > 0) { time--; document.getElementById('tm').innerText = time; }
-            else if(gameOn) { gameOn = false; alert("انتهى الوقت! رصيدك: " + gold); location.reload(); }
+        let timer = setInterval(() => {
+            if(time <= 0) {
+                clearInterval(timer); gameActive = false;
+                let u = parseInt(document.getElementById('uScore').innerText);
+                let a = parseInt(document.getElementById('aiScore').innerText);
+                alert(u > a ? "مبروك يا قبطان! اكتسحت الكمبيوتر 💰" : "هارد لك، الكمبيوتر سيطر على الميدان!");
+                location.reload();
+            } else { time--; document.getElementById('tm').innerText = time; }
         }, 1000);
+    }
+
+    function update() {
+        document.getElementById('uScore').innerText = document.querySelectorAll('.user-team').length;
+        document.getElementById('aiScore').innerText = document.querySelectorAll('.ai-team').length;
     }
 </script>
 </body>
