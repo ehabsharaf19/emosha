@@ -1,0 +1,17 @@
+const levels=[
+{
+id:1,
+target:500,
+moves:20
+},
+{
+id:2,
+target:1200,
+moves:18
+},
+{
+id:3,
+target:2500,
+moves:15
+}
+];
