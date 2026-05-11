@@ -42,8 +42,7 @@ animation:shake .2s;
 75%{transform:translateX(5px);}
 100%{transform:translateX(0);}
 
-}
-function explodeGem(gem){
+} function explodeGem(gem){
 
 gem.classList.add("explode");
 
@@ -73,18 +72,15 @@ gem.classList.remove("explode");
 
 },250);
 
-}
-<audio id="bgMusic" loop>
+} <audio id="bgMusic" loop>
 
 <source src="https://cdn.pixabay.com/download/audio/2022/10/25/audio_946f9d2f33.mp3">
 
-</audio>
-document.body.addEventListener("click",()=>{
+</audio> document.body.addEventListener("click",()=>{
 
 document.getElementById("bgMusic").play();
 
-},{once:true});
-btn.onclick=()=>{
+},{once:true}); btn.onclick=()=>{
 
 if(ans===q.c){
 
