@@ -5,81 +5,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إيموشا - خريطة الغزو</title>
     <style>
-        body { background: #0f140f; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; }
-        .map-grid { 
+        body { background: #0a0f0a; color: #e0e0e0; font-family: sans-serif; text-align: center; margin: 0; padding-bottom: 50px; }
+        .header { background: #1a1a1a; padding: 15px; border-bottom: 3px solid #ffcc00; margin-bottom: 20px; }
+        .stats { display: flex; justify-content: space-around; font-weight: bold; margin-top: 10px; }
+        
+        .map-container { 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
-            gap: 15px; 
-            max-width: 400px; 
-            margin: 20px auto; 
-            padding: 20px;
-            background: url('https://www.transparenttextures.com/patterns/dark-matter.png'); /* خلفية توحي بالأرض */
-            border: 3px solid #333;
-            border-radius: 15px;
+            gap: 12px; 
+            max-width: 380px; 
+            margin: 0 auto; 
+            background: #111; 
+            padding: 15px; 
+            border-radius: 15px; 
+            border: 1px solid #333;
         }
+
         .location { 
             aspect-ratio: 1/1; 
-            background: #2a2a2a; 
+            background: #222; 
             border: 2px solid #444; 
-            border-radius: 8px; 
+            border-radius: 12px; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             justify-content: center; 
-            cursor: pointer;
+            cursor: pointer; 
             transition: 0.3s;
             font-size: 0.8rem;
         }
-        .icon { font-size: 2rem; margin-bottom: 5px; }
-        .red-captured { background: #990000 !important; border-color: #ff3333; box-shadow: 0 0 15px #ff3333; color: white; }
+
+        .icon { font-size: 1.8rem; margin-bottom: 4px; }
+        
+        /* ألوان السيطرة */
+        .red-captured { background: #b30000 !important; border-color: #ff4d4d; box-shadow: 0 0 15px #ff4d4d; color: white; }
         .blue-captured { background: #0044cc !important; border-color: #3385ff; box-shadow: 0 0 15px #3385ff; color: white; }
-        .info-bar { background: #1a1a1a; padding: 15px; margin-bottom: 10px; border-bottom: 2px solid #ffcc00; }
-        .btn-team { padding: 10px 20px; border: none; border-radius: 5px; margin: 5px; cursor: pointer; font-weight: bold; }
+
+        .controls { margin-top: 25px; }
+        .team-btn { padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin: 5px; width: 40%; }
+        
+        #login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .music-btn { position: fixed; bottom: 15px; right: 15px; background: #ffcc00; width: 45px; height: 45px; border-radius: 50%; border: none; cursor: pointer; font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
-<audio id="bgMusic" loop>
+<audio id="warMusic" loop>
     <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" type="audio/mpeg">
 </audio>
 
-<div class="info-bar">
-    <h2 id="pDisplay">خريطة العمليات</h2>
-    <div style="display:flex; justify-content: space-around;">
-        <span>🔴 الصقور: <b id="rcount">0</b></span>
-        <span>🔵 الذئاب: <b id="bcount">0</b></span>
+<div id="login">
+    <h1 style="color:#ffcc00">إيموشا: خريطة الحرب</h1>
+    <input type="text" id="pName" placeholder="ادخل اسم القائد..." style="padding:12px; border-radius:8px; border:none; width:70%; text-align:center;">
+    <button onclick="start()" style="margin-top:20px; padding:12px 40px; background:#ffcc00; border:none; border-radius:25px; font-weight:bold;">دخول العمليات</button>
+</div>
+
+<div id="gameUI" style="display:none;">
+    <div class="header">
+        <h3 id="displayTitle"></h3>
+        <div class="stats">
+            <span style="color:#ff4d4d">الصقور: <span id="rc">0</span></span>
+            <span style="color:#3385ff">الذئاب: <span id="bc">0</span></span>
+        </div>
+    </div>
+
+    <div class="map-container">
+        <div class="location" onclick="cap(this)"><span class="icon">🏭</span>مصنع</div>
+        <div class="location" onclick="cap(this)"><span class="icon">🏚️</span>بيت مهجور</div>
+        <div class="location" onclick="cap(this)"><span class="icon">🛖</span>هنجر</div>
+        <div class="location" onclick="cap(this)"><span class="icon">🏢</span>مقر قيادة</div>
+        <div class="location" onclick="cap(this)"><span class="icon">🏗️</span>مخزن</div>
+        <div class="location" onclick="cap(this)"><span class="icon">⛽</span>محطة</div>
+        <div class="location" onclick="cap(this)"><span class="icon">🏘️</span>قرية</div>
+        <div class="location" onclick="cap(this)"><span class="icon">🏠</span>فيلا</div>
+        <div class="location" onclick="cap(this)"><span class="icon">🚧</span>حاجز</div>
+    </div>
+
+    <div class="controls">
+        <button class="team-btn" style="background:#ff4d4d; color:white;" onclick="team='red'">فريق الصقور</button>
+        <button class="team-btn" style="background:#3385ff; color:white;" onclick="team='blue'">فريق الذئاب</button>
     </div>
 </div>
 
-<div class="map-grid">
-    <div class="location" id="loc1" onclick="capture(1)"><span class="icon">🏭</span>مصنع كيماوي</div>
-    <div class="location" id="loc2" onclick="capture(2)"><span class="icon">🏚️</span>بيت مهجور</div>
-    <div class="location" id="loc3" onclick="capture(3)"><span class="icon">🛖</span>هنجر سلاح</div>
-    <div class="location" id="loc4" onclick="capture(4)"><span class="icon">🏠</span>منطقة سكنية</div>
-    <div class="location" id="loc5" onclick="capture(5)"><span class="icon">🏢</span>مركز قيادة</div>
-    <div class="location" id="loc6" onclick="capture(6)"><span class="icon">🏗️</span>موقع بناء</div>
-    <div class="location" id="loc7" onclick="capture(7)"><span class="icon">⛽</span>محطة وقود</div>
-    <div class="location" id="loc8" onclick="capture(8)"><span class="icon">Warehouse</span>مخزن أغذية</div>
-    <div class="location" id="loc9" onclick="capture(9)"><span class="icon">🏘️</span>قرية حدودية</div>
-</div>
-
-<div style="margin-top:20px;">
-    <button class="btn-team" style="background:#ff3333; color:white;" onclick="currentTeam='red'">الالتحاق بالصقور</button>
-    <button class="btn-team" style="background:#3385ff; color:white;" onclick="currentTeam='blue'">الالتحاق بالذئاب</button>
-</div>
-
-<button onclick="document.getElementById('bgMusic').play()" style="margin-top:20px; background:none; border:1px solid #555; color:#888; border-radius:20px; padding:5px 15px;">تشغيل الصوت 🔊</button>
+<button class="music-btn" onclick="toggleM()">🎵</button>
 
 <script>
-    let currentTeam = '';
-    function capture(id) {
-        if(!currentTeam) return alert("يجب اختيار فريقك أولاً لبدء الغزو!");
-        let loc = document.getElementById('loc'+id);
-        loc.className = 'location ' + (currentTeam === 'red' ? 'red-captured' : 'blue-captured');
-        document.getElementById('rcount').innerText = document.querySelectorAll('.red-captured').length;
-        document.getElementById('bcount').innerText = document.querySelectorAll('.blue-captured').length;
+    let team = '';
+    let music = document.getElementById('warMusic');
+
+    function start() {
+        let n = document.getElementById('pName').value;
+        if(!n) return alert("اكتب اسمك الأول!");
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('gameUI').style.display = 'block';
+        document.getElementById('displayTitle').innerText = "القائد: " + n;
+        music.play().catch(() => {});
+    }
+
+    function cap(el) {
+        if(!team) return alert("اختر فريقك أولاً!");
+        el.className = 'location ' + (team === 'red' ? 'red-captured' : 'blue-captured');
+        document.getElementById('rc').innerText = document.querySelectorAll('.red-captured').length;
+        document.getElementById('bc').innerText = document.querySelectorAll('.blue-captured').length;
+    }
+
+    function toggleM() {
+        if(music.paused) music.play(); else music.pause();
     }
 </script>
-
 </body>
 </html>
