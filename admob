@@ -1,0 +1,2 @@
+npm install @capacitor/android
+npm install cordova-plugin-admob-free
