@@ -3,37 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إيموشا - معركة الأسلحة</title>
+    <title>إيموشا - النسخة النهائية</title>
     <style>
-        body { background: #1a1a1a; color: #fff; font-family: sans-serif; text-align: center; padding: 15px; }
-        .score-board { display: flex; justify-content: center; gap: 20px; background: #333; padding: 15px; border-radius: 10px; border: 2px solid #555; }
-        .red-score { color: #ff4d4d; font-weight: bold; }
-        .blue-score { color: #4d94ff; font-weight: bold; }
-        .map { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 350px; margin: 20px auto; }
-        .zone { aspect-ratio: 1/1; background: #444; border: 2px solid #666; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 10px; font-size: 20px; transition: 0.3s; }
-        .red-team { background: #ff4d4d !important; box-shadow: 0 0 10px #ff4d4d; }
-        .blue-team { background: #4d94ff !important; box-shadow: 0 0 10px #4d94ff; }
-        .weapon-box { margin: 20px 0; padding: 10px; background: #252525; border-radius: 10px; }
-        .weapon-btn { padding: 10px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .bomb { background: #ffcc00; color: #000; }
-        .rocket { background: #ff5500; color: #fff; }
+        body { background: #121212; color: white; font-family: 'Segoe UI', Tahoma, sans-serif; text-align: center; padding: 10px; margin: 0; }
+        .header { background: #1f1f1f; padding: 15px; border-bottom: 3px solid #ffcc00; margin-bottom: 20px; }
+        .score-board { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; }
+        .score { padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 1.2rem; min-width: 100px; }
+        .red-s { background: #ff4d4d; color: white; box-shadow: 0 4px 10px rgba(255, 77, 77, 0.4); }
+        .blue-s { background: #4d94ff; color: white; box-shadow: 0 4px 10px rgba(77, 148, 255, 0.4); }
+        .map { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 380px; margin: 0 auto; padding: 10px; }
+        .zone { aspect-ratio: 1/1; background: #333; border: 2px solid #444; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 12px; font-size: 1.5rem; transition: 0.3s; color: rgba(255,255,255,0.2); }
+        .red-team { background: #ff4d4d !important; color: white !important; border-color: #fff; transform: scale(0.98); }
+        .blue-team { background: #4d94ff !important; color: white !important; border-color: #fff; transform: scale(0.98); }
+        .weapons { margin: 20px auto; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .w-btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .bomb { background: #ffcc00; color: black; }
+        .rocket { background: #ff5500; color: white; }
+        .active-w { outline: 3px solid white; transform: translateY(-5px); }
+        .footer-nav { margin-top: 30px; padding: 20px; background: #1f1f1f; border-radius: 20px 20px 0 0; }
+        .team-btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 5px; }
     </style>
 </head>
 <body>
-    <h2>إيموشا: صراع الأسلحة ⚔️</h2>
-    <div class="score-board">
-        <div class="red-score">الصقور: <span id="r-score">0</span></div>
-        <div class="blue-score">الذئاب: <span id="b-score">0</span></div>
-    </div>
 
-    <div class="weapon-box">
-        <p>اختر سلاحك:</p>
-        <button class="weapon-btn bomb" onclick="useWeapon('bomb')">💣 قنبلة (تطهير)</button>
-        <button class="weapon-btn rocket" onclick="useWeapon('rocket')">🚀 صاروخ (احتلال)</button>
-    </div>
+<div class="header">
+    <h1>إيموشا: معركة السيطرة ⚔️</h1>
+</div>
 
-    <div class="map">
-        <script>
+<div class="score-board">
+    <div class="score red-s">الصقور: <span id="rs">0</span></div>
+    <div class="score blue-s">الذئاب: <span id="bs">0</span></div>
+</div>
+
+<div class="weapons">
+    <button id="b-btn" class="w-btn bomb" onclick="setW('bomb')">💣 قنبلة (تطهير)</button>
+    <button id="r-btn" class="w-btn rocket" onclick="set
             for(let i=1; i<=9; i++) {
                 document.write(`<div class="zone" id="z${i}" onclick="action(${i})">${i}</div>`);
             }
