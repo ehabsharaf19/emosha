@@ -3,100 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إيموشا: تحدي القبطان - إيهاب شرف</title>
+    <title>إيموشا جواهر - إيهاب شرف</title>
     <style>
-        body { background: #000; color: white; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; overflow-x: hidden; }
-        #login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #002200 0%, #000 100%); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .logo-container { width: 140px; height: 140px; border-radius: 50%; border: 3px solid #ffcc00; margin-bottom: 10px; overflow: hidden; }
-        .logo-img { width: 100%; height: 100%; object-fit: contain; }
-        .start-btn { background: linear-gradient(45deg, #ffcc00, #ffaa00); padding: 15px 40px; border-radius: 30px; color: black; border: none; font-weight: bold; cursor: pointer; }
+        :root { --gold: #ffcc00; --bg: #0b0b0b; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; }
         
-        #gameUI { display: none; }
-        .top-bar { background: #111; padding: 10px; border-bottom: 2px solid #ffcc00; display: flex; justify-content: space-around; font-weight: bold; }
-        .map-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-width: 95%; margin: 15px auto; }
-        .zone { aspect-ratio: 1/1; background: #1a1a1a; border-radius: 8px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+        /* شاشة الدخول */
+        #login { position: fixed; inset: 0; background: radial-gradient(circle, #002200, #000); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .logo-box { width: 140px; height: 140px; border-radius: 50%; border: 3px solid var(--gold); box-shadow: 0 0 20px var(--gold); margin-bottom: 15px; overflow: hidden; background: #111; }
+        .logo-box img { width: 100%; height: 100%; object-fit: contain; }
+        .btn-start { background: linear-gradient(45deg, var(--gold), #ffaa00); padding: 15px 45px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; font-size: 1.2rem; box-shadow: 0 4px 15px rgba(255,204,0,0.3); }
+
+        /* شاشة اللعبة */
+        #gameUI { display: none; height: 100vh; display: flex; flex-direction: column; }
+        .top-bar { background: #111; padding: 15px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-around; font-weight: bold; font-size: 1.1rem; }
         
-        .user-team { background: #3385ff !important; box-shadow: 0 0 10px #3385ff; border: none; }
-        .ai-team { background: #ff3333 !important; box-shadow: 0 0 10px #ff3333; border: none; }
-        
-        .footer { position: fixed; bottom: 0; width: 100%; background: #111; padding: 15px; display: flex; justify-content: center; gap: 10px; }
-        .team-select { padding: 10px 20px; border-radius: 8px; border: 2px solid white; cursor: pointer; font-weight: bold; }
-        .active-sel { border-color: #ffcc00; background: #333; }
+        .grid-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; padding: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; background: #1a1a1a; padding: 10px; border-radius: 12px; border: 2px solid #333; max-width: 380px; width: 100%; }
+        .gem { aspect-ratio: 1/1; background: #2a2a2a; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; cursor: pointer; transition: transform 0.2s, background 0.3s; }
+        .gem:active { transform: scale(0.9); }
+        .selected { border: 2px solid white; box-shadow: 0 0 15px white; z-index: 5; }
+
+        /* صندوق الأسئلة */
+        #quiz-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 200; }
+        .quiz-card { background: #222; width: 85%; padding: 25px; border-radius: 20px; border: 3px solid var(--gold); }
+        .ans-btn { background: #333; color: white; border: 1px solid #555; padding: 12px; margin: 8px 0; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .ans-btn:hover { background: var(--gold); color: black; }
+
+        .footer-info { padding: 10px; color: #888; font-size: 0.8rem; }
     </style>
 </head>
-<body>
-
-<div id="login">
-    <div class="logo-container"><img src="https://i.ibb.co/SXxQbqVh/Screenshot-Chat-GPT.jpg" class="logo-img"></div>
-    <h3 style="color:#ffcc00;">إيموشا: التحدي المباشر</h3>
-    <p style="color:#aaa;">المطور: إيهاب شرف</p>
-    <div style="margin-bottom: 20px;">
-        <span id="b1" class="team-select" onclick="pick('blue-active', 'b1')">فريق الذئاب (أنت)</span>
-        <span id="b2" class="team-select" onclick="pick('red-active', 'b2')">فريق الصقور (أنت)</span>
-    </div>
-    <button class="start-btn" onclick="start()">ابدأ المعركة ضد الكمبيوتر ⚔️</button>
-</div>
-
-<div id="gameUI">
-    <div class="top-bar">
-        <div style="color:#3385ff">أنت: <span id="uScore">0</span></div>
-        <div style="color:#ff3333">الكمبيوتر: <span id="aiScore">0</span></div>
-        <div style="color:#ff3333">⏳ <span id="tm">30</span>s</div>
-    </div>
-    <div class="map-grid" id="grid"></div>
-</div>
-
-<script>
-    let myTeam = '', aiTeam = '', time = 30, gameActive = false;
-    const grid = document.getElementById('grid');
-
-    function pick(t, id) {
-        myTeam = t;
-        aiTeam = (t === 'blue-active') ? 'red-active' : 'blue-active';
-        document.querySelectorAll('.team-select').forEach(el => el.classList.remove('active-sel'));
-        document.getElementById(id).classList.add('active-sel');
-    }
-
-    function start() {
-        if(!myTeam) return alert("اختر فريقك أولاً!");
-        document.getElementById('login').style.display = 'none';
-        document.getElementById('gameUI').style.display = 'block';
-        for(let i=0; i<16; i++) {
-            let d = document.createElement('div');
-            d.className = 'zone';
-            d.onclick = function() { if(gameActive) this.className = 'zone user-team'; update(); };
-            d.innerHTML = '🏗️';
-            grid.appendChild(d);
-        }
-        gameActive = true;
-        runGame();
-    }
-
-    function runGame() {
-        // ذكاء اصطناعي يحاول السيطرة كل ثانية
-        let aiInterval = setInterval(() => {
-            if(!gameActive) { clearInterval(aiInterval); return; }
-            let zones = document.querySelectorAll('.zone');
-            let rand = Math.floor(Math.random() * 16);
-            zones[rand].className = 'zone ai-team';
-            update();
-        }, 800);
-
-        let timer = setInterval(() => {
-            if(time <= 0) {
-                clearInterval(timer); gameActive = false;
-                let u = parseInt(document.getElementById('uScore').innerText);
-                let a = parseInt(document.getElementById('aiScore').innerText);
-                alert(u > a ? "مبروك يا قبطان! اكتسحت الكمبيوتر 💰" : "هارد لك، الكمبيوتر سيطر على الميدان!");
-                location.reload();
-            } else { time--; document.getElementById('tm').innerText = time; }
-        }, 1000);
-    }
-
-    function update() {
-        document.getElementById('uScore').innerText = document.querySelectorAll('.user-team').length;
-        document.getElementById('aiScore').innerText = document.querySelectorAll('.ai-team').length;
-    }
-</script>
-</body>
-</html>
