@@ -1,0 +1,5 @@
+saveProgress(user.uid,{
+score,
+gold,
+level
+});
