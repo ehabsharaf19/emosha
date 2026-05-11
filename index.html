@@ -1,23 +1,40 @@
-<script type="module" src="bati5a.js"></script>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إيموشا - جواهر المعرفة</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #1a1a1a; color: white; margin-top: 50px; }
+        .btn { background: #ffd700; border: none; padding: 15px 30px; font-size: 20px; border-radius: 10px; cursor: pointer; color: black; font-weight: bold; }
+        #score-val { color: #ffd700; font-size: 30px; }
+    </style>
+</head>
+<body>
 
-<script type="module">
-  import { firebaseConfig } from './bati5a.js';
-  
-  // دالة لإرسال النقاط للمخزن مع حماية بسيطة
-  window.saveScoreToFirebase = function(points) {
-    const url = firebaseConfig.databaseURL + "/scores.json";
-    
-    fetch(url, {
-      method: "POST",
-      body: JSON.stringify({
-        playerName: "لاعب إيموشا",
-        score: points,
-        date: new Date().toISOString()
-      })
-    })
-    .then(response => console.log("تم حفظ النقاط في المخزن بنجاح!"))
-    .catch(error => console.error("خطأ في الحماية أو الربط:", error));
-  };
+    <h1>💎 إيموشا: جواهر المعرفة</h1>
+    <p>نقاطك الحالية: <span id="score-val">0</span></p>
+    <button class="btn" onclick="collectGem()">جمع جوهرة (+20)</button>
 
-  console.log("إيموشا مأمنة ومتصلة بالمخزن.");
-</script>
+    <script type="module" src="bati5a.js"></script>
+
+    <script type="module">
+        import { firebaseConfig } from './bati5a.js';
+
+        let score = 0;
+        window.collectGem = function() {
+            score += 20;
+            document.getElementById('score-val').innerText = score;
+            
+            // إرسال النقاط للمخزن (Firebase)
+            if(firebaseConfig.databaseURL) {
+                fetch(firebaseConfig.databaseURL + "/scores.json", {
+                    method: "POST",
+                    body: JSON.stringify({ points: score, time: new Date().toLocaleString() })
+                });
+            }
+            alert("عاش يا قبطان! جمعت 20 نقطة.");
+        };
+    </script>
+</body>
+</html>
