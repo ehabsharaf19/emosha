@@ -3,135 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إيموشا: جواهر المعرفة</title>
+    <title>إيموشا: قبطان الجواهر</title>
     <style>
         :root { --blue: #0072ff; --gold: #ffd700; }
         body { background: #000428; color: white; font-family: sans-serif; margin: 0; text-align: center; overflow: hidden; touch-action: none; }
         .header { background: linear-gradient(180deg, #0072ff, #00c6ff); padding: 15px; border-bottom: 4px solid var(--gold); }
-        .stats { display: flex; justify-content: center; gap: 20px; font-weight: bold; font-size: 1.1rem; }
-        #grid { display: grid; grid-template-columns: repeat(8, 42px); grid-gap: 5px; justify-content: center; margin: 15px auto; background: rgba(0,242,255,0.1); padding: 10px; border-radius: 12px; border: 2px solid #00f2ff; width: fit-content; }
-        .cell { width: 42px; height: 42px; background: #1a2a4a; display: flex; align-items: center; justify-content: center; font-size: 24px; border-radius: 6px; cursor: pointer; user-select: none; transition: 0.2s; }
+        .stats { display: flex; justify-content: center; gap: 20px; font-weight: bold; font-size: 1.1rem; margin-top: 5px; }
+        #grid { display: grid; grid-template-columns: repeat(8, 42px); grid-gap: 5px; justify-content: center; margin: 20px auto; background: rgba(0,242,255,0.1); padding: 10px; border-radius: 12px; border: 2px solid #00f2ff; width: fit-content; }
+        .cell { width: 42px; height: 42px; background: #1a2a4a; display: flex; align-items: center; justify-content: center; font-size: 24px; border-radius: 8px; cursor: pointer; user-select: none; transition: transform 0.1s; }
         .active { outline: 3px solid white; transform: scale(1.1); z-index: 5; }
-        .quiz-box { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #112240; padding: 25px; border: 3px solid var(--gold); border-radius: 20px; z-index: 100; width: 85%; }
-        .ans-btn { background: var(--gold); color: black; border: none; padding: 10px 20px; margin: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
+        .quiz-box { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #001a33; padding: 25px; border: 3px solid var(--gold); border-radius: 20px; z-index: 100; width: 85%; box-shadow: 0 0 40px #000; }
+        .ans-btn { background: var(--gold); color: black; border: none; padding: 12px; margin: 8px 0; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1 style="margin:0; font-size: 1.5rem;">💎 إيموشا: جواهر المعرفة</h1>
+    <h1 style="margin:0; font-size: 1.4rem;">💎 إيموشا: جواهر المعرفة</h1>
     <div class="stats">
-        <span>الذهب 💰: <span id="s">0</span></span>
-        <span>المرحلة ⭐: <span id="l">1</span></span>
-    </div>
-</div>
-
-<div id="grid"></div>
-
-<div id="qBox" class="quiz-box">
-    <h2 style="color:var(--gold)">سؤال العبور</h2>
-    <p id="qText" style="font-size:1.2rem;"></p>
-    <div id="opts"></div>
-</div>
-
-<audio id="m" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg"></audio>
-
-<script>
-    const types = ['🍎', '🍇', '🍊', '🍓', '💎', '⭐'];
-    const questions = [{q: "ما هي عاصمة مصر؟", a: ["القاهرة", "طنطا"], c: 0}];
-    let score = 0, level = 1, first = null, cells = [];
-
-    function start() {
-        const g = document.getElementById('grid');
-        g.innerHTML = ''; cells = [];
-        for (let i = 0; i < 64; i++) {
-            const d = document.createElement('div');
-            d.className = 'cell';
-            d.innerHTML = types[Math.floor(Math.random() * types.length)];
-            d.onclick = () => {
-                let music = document.getElementById('m');
-                music.volume = 0.1; // صوت واطي جداً هادي
-                music.play().catch(()=>{});
-                handle(d, i);
-            };
-            g.appendChild(d); cells.push(d);
-        }
-        // مسح أي فرقعة عشوائية عند البداية بدون نقاط
-        check(false);
-    }
-
-    function handle(d, i) {
-        if (!first) { first = {d, i}; d.classList.add('active'); } 
-        else {
-            let diff = Math.abs(first.i - i);
-            if (diff === 1 || diff === 8) {
-                let t1 = first.d.innerHTML; let t2 = d.innerHTML;
-                first.d.innerHTML = t2; d.innerHTML = t1;
-                // لو الحركة عملت 3 قطع فرقع وادي نقاط
-                if (!check(true)) { 
-                    setTimeout(() => { first.d.innerHTML = t1; d.innerHTML = t2; }, 300);
-                }
-            }
-            first.d.classList.remove('active'); first = null;
-        }
-    }
-
-    function check(givePoints) {
-        let found = false;
-        let toRemove = new Set();
-
-        for (let i = 0; i < 64; i++) {
-            // فحص أفقي
-            if (i % 8 < 6 && cells[i].innerHTML === cells[i+1].innerHTML && cells[i].innerHTML === cells[i+2].innerHTML) {
-                toRemove.add(i); toRemove.add(i+1); toRemove.add(i+2); found = true;
-            }
-            // فحص رأسي
-            if (i < 48 && cells[i].innerHTML === cells[i+8].innerHTML && cells[i].innerHTML === cells[i+16].innerHTML) {
-                toRemove.add(i); toRemove.add(i+8); toRemove.add(i+16); found = true;
-            }
-        }
-
-        if (found) {
-            if (givePoints) {
-                score += toRemove.size * 5;
-                document.getElementById('s').innerText = score;
-                if (score >= 100) showQuiz();
-            }
-            toRemove.forEach(idx => cells[idx].innerHTML = '');
-            setTimeout(fill, 300);
-        }
-        return found;
-    }
-
-    function showQuiz() {
-        const box = document.getElementById('qBox');
-        const qData = questions[0];
-        document.getElementById('qText').innerText = qData.q;
-        const optDiv = document.getElementById('opts');
-        optDiv.innerHTML = '';
-        qData.a.forEach((opt, idx) => {
-            const b = document.createElement('button');
-            b.className = 'ans-btn';
-            b.innerText = opt;
-            b.onclick = () => {
-                if(idx === qData.c) {
-                    box.style.display = 'none';
-                    level++; score = 0;
-                    document.getElementById('l').innerText = level;
-                    document.getElementById('s').innerText = score;
-                    start();
-                }
-            };
-            optDiv.appendChild(b);
-        });
-        box.style.display = 'block';
-    }
-
-    function fill() {
-        cells.forEach(c => { if (c.innerHTML === '') c.innerHTML = types[Math.floor(Math.random() * types.length)]; });
-        check(true);
-    }
-    window.onload = start;
-</script>
-</body>
-</html>
