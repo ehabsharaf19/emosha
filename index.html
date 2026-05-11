@@ -5,86 +5,105 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إيموشا - إيهاب شرف</title>
     <style>
+        body { background: #000; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; margin: 0; overflow-x: hidden; }
+        
+        /* شاشة الدخول الفخمة */
         #login { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: radial-gradient(circle, #002200, #000); 
+            background: radial-gradient(circle, #003300 0%, #000000 100%); 
             z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; 
         }
         
-        .logo-img {
-            width: 160px; height: 160px;
+        .logo-container {
+            width: 180px; height: 180px;
             border-radius: 50%;
             border: 4px solid #ffcc00;
-            box-shadow: 0 0 30px rgba(255, 204, 0, 0.6);
-            margin-bottom: 15px;
-            object-fit: cover;
-            background: #222; /* لون خلفية في حال اختفاء الصورة */
+            box-shadow: 0 0 40px rgba(255, 204, 0, 0.5);
+            margin-bottom: 20px;
+            overflow: hidden;
+            background: #111;
+        }
+
+        .logo-img { width: 100%; height: 100%; object-fit: contain; }
+
+        .dev-name { color: #aaa; font-size: 1.1rem; margin-bottom: 30px; letter-spacing: 1px; }
+
+        input { 
+            padding: 15px; border-radius: 12px; border: none; width: 80%; max-width: 300px; 
+            text-align: center; font-size: 1rem; margin-bottom: 20px; outline: none;
         }
 
         .start-btn { 
             background: linear-gradient(45deg, #ffcc00, #ffaa00); 
-            padding: 15px 50px; border-radius: 30px; 
-            border: none; font-weight: bold; cursor: pointer; font-size: 1.2rem;
-            color: black; box-shadow: 0 5px 15px rgba(255, 204, 0, 0.4);
+            padding: 15px 60px; border-radius: 35px; color: black;
+            border: none; font-weight: bold; cursor: pointer; font-size: 1.3rem;
+            box-shadow: 0 8px 20px rgba(255, 204, 0, 0.3); transition: 0.3s;
         }
 
-        body { background: #0a0a0a; color: white; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; }
-        .game-header { background: #151515; padding: 20px; border-bottom: 2px solid #ffcc00; }
-        .map-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 380px; margin: 25px auto; padding: 10px; }
-        .zone { aspect-ratio: 1/1; background: #252525; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; border: 1px solid #333; }
+        /* الميدان */
+        .game-header { background: #111; padding: 20px; border-bottom: 3px solid #ffcc00; position: sticky; top: 0; z-index: 10; }
+        .map-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 400px; margin: 30px auto; padding: 15px; }
+        .zone { aspect-ratio: 1/1; background: #222; border-radius: 15px; border: 2px solid #333; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; transition: 0.3s; cursor: pointer; }
         
-        .red-team { background: #e60000 !important; box-shadow: 0 0 15px #ff0000; color: white; border: none; }
-        .blue-team { background: #0066ff !important; box-shadow: 0 0 15px #0088ff; color: white; border: none; }
-        
-        .controls { position: sticky; bottom: 0; background: rgba(0,0,0,0.9); padding: 15px; display: flex; justify-content: center; gap: 10px; }
-        .btn-t { padding: 12px; border-radius: 8px; border: none; font-weight: bold; flex: 1; cursor: pointer; }
+        .red-active { background: #ff3333 !important; border-color: #ff6666; box-shadow: 0 0 15px #ff3333; }
+        .blue-active { background: #3385ff !important; border-color: #66a3ff; box-shadow: 0 0 15px #3385ff; }
+
+        .footer-tools { position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.9); padding: 15px; display: flex; justify-content: center; gap: 10px; border-top: 1px solid #333; }
+        .team-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; color: white; }
     </style>
 </head>
 <body>
 
 <div id="login">
-    <img src="https://i.ibb.co/99vw6RyF/Screenshot-Chat-GPT.jpg" class="logo-img" alt="Logo">
-    <h1 style="color:#ffcc00; margin:10px 0 5px 0;">إيموشا: الحرب الكبرى</h1>
-    <p style="color:#ddd; margin-bottom: 25px;">تطوير: إيهاب شرف</p>
+    <div class="logo-container">
+        <img src="https://i.ibb.co/SXxQbqVh/Screenshot-Chat-GPT.jpg" class="logo-img" alt="إيموشا">
+    </div>
+    <h1 style="color:#ffcc00; font-size: 2.2rem; margin: 0;">إيموشا: الحرب</h1>
+    <p class="dev-name">تطوير: إيهاب شرف</p>
     
-    <input type="text" id="pName" placeholder="اسم المقاتل..." style="padding:15px; border-radius:10px; border:none; width:70%; margin-bottom:20px; text-align:center;">
-    <button class="start-btn" onclick="go()">بدء الغزو ⚔️</button>
+    <input type="text" id="userName" placeholder="اكتب اسم القائد هنا...">
+    <button class="start-btn" onclick="start()">دخول الميدان ⚔️</button>
 </div>
 
 <div id="gameUI" style="display:none;">
     <div class="game-header">
-        <h2 id="pDisplay" style="color:#ffcc00; margin:0;"></h2>
+        <h2 id="displayTitle" style="margin:0; color:#ffcc00;"></h2>
     </div>
-    <div class="map-grid" id="map">
-        <div class="zone" onclick="take(this)">1</div>
-        <div class="zone" onclick="take(this)">2</div>
-        <div class="zone" onclick="take(this)">3</div>
-        <div class="zone" onclick="take(this)">4</div>
-        <div class="zone" onclick="take(this)">5</div>
-        <div class="zone" onclick="take(this)">6</div>
-        <div class="zone" onclick="take(this)">7</div>
-        <div class="zone" onclick="take(this)">8</div>
-        <div class="zone" onclick="take(this)">9</div>
+
+    <div class="map-grid">
+        <div class="zone" onclick="capture(this)">1</div>
+        <div class="zone" onclick="capture(this)">2</div>
+        <div class="zone" onclick="capture(this)">3</div>
+        <div class="zone" onclick="capture(this)">4</div>
+        <div class="zone" onclick="capture(this)">5</div>
+        <div class="zone" onclick="capture(this)">6</div>
+        <div class="zone" onclick="capture(this)">7</div>
+        <div class="zone" onclick="capture(this)">8</div>
+        <div class="zone" onclick="capture(this)">9</div>
     </div>
-    <div class="controls">
-        <button class="btn-t" style="background:#ff3333; color:white;" onclick="tm='red-team'">فريق الصقور</button>
-        <button class="btn-t" style="background:#3385ff; color:white;" onclick="tm='blue-team'">فريق الذئاب</button>
+
+    <div class="footer-tools">
+        <button class="team-btn" style="background:#ff3333;" onclick="currentTeam='red-active'">فريق الصقور</button>
+        <button class="team-btn" style="background:#3385ff;" onclick="currentTeam='blue-active'">فريق الذئاب</button>
     </div>
 </div>
 
 <script>
-    let tm = '';
-    function go() {
-        let n = document.getElementById('pName').value;
-        if(!n) return alert("الرجاء إدخال الاسم!");
+    let currentTeam = '';
+
+    function start() {
+        let n = document.getElementById('userName').value;
+        if(!n) return alert("من فضلك ادخل اسمك يا قائد");
         document.getElementById('login').style.display = 'none';
         document.getElementById('gameUI').style.display = 'block';
-        document.getElementById('pDisplay').innerText = "القائد: " + n;
+        document.getElementById('displayTitle').innerText = "القائد الميداني: " + n;
     }
-    function take(el) {
-        if(!tm) return alert("اختر فريقك أولاً!");
-        el.className = 'zone ' + tm;
+
+    function capture(el) {
+        if(!currentTeam) return alert("اختر فريقك أولاً من الأسفل!");
+        el.className = 'zone ' + currentTeam;
     }
 </script>
+
 </body>
 </html>
