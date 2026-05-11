@@ -1,0 +1,4 @@
+npm install @capacitor/core
+npm install @capacitor/cli
+npx cap init
+npx cap add android
