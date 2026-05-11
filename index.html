@@ -18,12 +18,13 @@
         .start-btn { background: linear-gradient(45deg, #ffcc00, #ffaa00); padding: 15px 50px; border-radius: 35px; color: black; border: none; font-weight: bold; cursor: pointer; font-size: 1.2rem; }
         input { padding: 15px; border-radius: 12px; border: 1px solid #ffcc00; width: 80%; max-width: 300px; text-align: center; margin-bottom: 15px; background: rgba(255,255,255,0.1); color: white; }
 
-        /* الميدان والعدادات */
-        .game-header { background: #111; padding: 15px; border-bottom: 3px solid #ffcc00; }
+        /* الميدان والعدادات جوه */
+        #gameUI { display: none; padding-bottom: 100px; }
+        .game-header { background: #111; padding: 15px; border-bottom: 3px solid #ffcc00; position: sticky; top: 0; z-index: 10; }
         .stats { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
-        .stat-box { padding: 10px 20px; border-radius: 10px; font-weight: bold; min-width: 100px; font-size: 1.1rem; }
+        .stat-box { padding: 10px 15px; border-radius: 10px; font-weight: bold; min-width: 90px; font-size: 1rem; }
         .weapon-box { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
-        .weapon { padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; font-size: 0.9rem; }
+        .weapon { padding: 10px 15px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; font-size: 0.9rem; }
 
         /* الخريطة والأيقونات */
         .map-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 400px; margin: 0 auto; padding: 10px; }
@@ -33,7 +34,8 @@
         .red-active { background: #ff3333 !important; box-shadow: 0 0 15px #ff3333; border: none; }
         .blue-active { background: #3385ff !important; box-shadow: 0 0 15px #3385ff; border: none; }
 
-        .footer-tools { position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.95); padding: 15px; display: flex; justify-content: center; gap: 10px; }
+        /* التحكم بالفرق */
+        .footer-tools { position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.95); padding: 15px; display: flex; justify-content: center; gap: 10px; border-top: 1px solid #333; z-index: 10; }
         .team-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; color: white; }
         #m-toggle { position: fixed; bottom: 85px; right: 20px; font-size: 2rem; cursor: pointer; z-index: 20; background: #ffcc00; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; color: black; }
     </style>
@@ -46,11 +48,11 @@
     </div>
     <h1 style="color:#ffcc00; margin:0;">إيموشا: معركة السيطرة</h1>
     <p style="color:#aaa; margin-bottom: 20px;">تطوير: إيهاب شرف</p>
-    <input type="email" id="uE" placeholder="ادخل الإيميل للبدء...">
-    <button class="start-btn" onclick="start()">دخول الميدان ⚔️</button>
+    <input type="email" id="uE" placeholder="ادخل الإيميل للبدء..." required>
+    <button class="start-btn" onclick="enterGame()">دخول الميدان ⚔️</button>
 </div>
 
-<div id="gameUI" style="display:none;">
+<div id="gameUI">
     <div class="game-header">
         <h3 id="uD" style="margin:0; color:#ffcc00;"></h3>
     </div>
@@ -61,45 +63,77 @@
     </div>
 
     <div class="weapon-box">
-        <button class="weapon" style="background:#ffcc00;" onclick="w='bomb'">💣 قنبلة (تطهير)</button>
-        <button class="weapon" style="background:#ff6600; color:white;" onclick="w='missile'">🚀 صاروخ (خاطف)</button>
+        <button class="weapon" style="background:#ffcc00;" onclick="wMode='bomb'">💣 قنبلة (تطهير)</button>
+        <button class="weapon" style="background:#ff6600; color:white;" onclick="wMode='missile'">🚀 صاروخ (خاطف)</button>
     </div>
 
     <div class="map-grid">
-        <div class="zone" onclick="hit(this, 1)"><span class="icon">🏭</span>مصنع</div>
-        <div class="zone" onclick="hit(this, 2)"><span class="icon">🛖</span>هنجر</div>
-        <div class="zone" onclick="hit(this, 3)"><span class="icon">🏚️</span>بيت مهجور</div>
-        <div class="zone" onclick="hit(this, 4)"><span class="icon">🏢</span>القيادة</div>
-        <div class="zone" onclick="hit(this, 5)"><span class="icon">⛽</span>محطة</div>
-        <div class="zone" onclick="hit(this, 6)"><span class="icon">🏗️</span>مستودع</div>
-        <div class="zone" onclick="hit(this, 7)"><span class="icon">🏘️</span>قرية</div>
-        <div class="zone" onclick="hit(this, 8)"><span class="icon">🏠</span>فيلا</div>
-        <div class="zone" onclick="hit(this, 9)"><span class="icon">🚧</span>حاجز</div>
+        <div class="zone" onclick="captureZone(this)"><span class="icon">🏭</span>مصنع</div>
+        <div class="zone" onclick="captureZone(this)"><span class="icon">🛖</span>هنجر</div>
+        <div class="zone" onclick="captureZone(this)"><span class="icon">🏚️</span>بيت مهجور</div>
+        <div class="zone" onclick="captureZone(this)"><span class="icon">🏢</span>القيادة</div>
+        <div class="zone" onclick="captureZone(this)"><span class="icon">⛽</span>محطة</div>
+        <div class="zone" onclick="captureZone(this)"><span class="icon">🏗️</span>مستودع</div>
+        <div class="zone" onclick="captureZone(this)"><span class="icon">🏘️</span>قرية</div>
+        <div class="zone" onclick="captureZone(this)"><span class="icon">🏠</span>فيلا</div>
+        <div class="zone" onclick="captureZone(this)"><span class="icon">🚧</span>حاجز</div>
     </div>
 
-    <div id="m-toggle" onclick="tM()">🎵</div>
+    <div id="m-toggle" onclick="toggleM()">🎵</div>
 
     <div class="footer-tools">
-        <button class="team-btn" style="background:#ff3333;" onclick="t='red-active'">فريق الصقور</button>
-        <button class="team-btn" style="background:#3385ff;" onclick="t='blue-active'">فريق الذئاب</button>
+        <button class="team-btn" style="background:#ff3333;" onclick="currentTeam='red-active'">فريق الصقور</button>
+        <button class="team-btn" style="background:#3385ff;" onclick="currentTeam='blue-active'">فريق الذئاب</button>
     </div>
 </div>
 
-<audio id="bg" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
+<audio id="bgMusic" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
 
 <script>
-    let t = '', w = '', isP = false;
-    const bg = document.getElementById('bg');
+    let currentTeam = '';
+    let wMode = ''; 
+    let isPlaying = false;
+    const audio = document.getElementById('bgMusic');
 
-    function start() {
-        let e = document.getElementById('uE').value;
-        if(!e || !e.includes('@')) return alert("ادخل إيميل صحيح!");
+    function enterGame() {
+        let email = document.getElementById('uE').value;
+        if(!email || !email.includes('@')) {
+            alert("ادخل إيميل صحيح أولاً!");
+            return;
+        }
+        // إخفاء الواجهة وإظهار الميدان
         document.getElementById('login').style.display = 'none';
         document.getElementById('gameUI').style.display = 'block';
-        document.getElementById('uD').innerText = "القائد: " + e.split('@')[0];
-        tM();
+        document.getElementById('uD').innerText = "القائد: " + email.split('@')[0];
+        
+        // تشغيل الموسيقى
+        if(!isPlaying) toggleM();
     }
 
-    function tM() {
-        if (!isP) { bg.play(); document.getElementById('m-toggle').innerText = '🔇'; }
-        else { bg.pause(); document.getElementById
+    function toggleM() {
+        if (!isPlaying) { audio.play(); document.getElementById('m-toggle').innerText = '🔇'; }
+        else { audio.pause(); document.getElementById('m-toggle').innerText = '🎵'; }
+        isPlaying = !isPlaying;
+    }
+
+    function captureZone(el) {
+        if(!currentTeam) {
+            alert("اختر فريقك أولاً من الأزرار بالأسفل!");
+            return;
+        }
+        
+        if(wMode === 'bomb') {
+            el.className = 'zone'; // تطهير
+            wMode = '';
+        } else {
+            el.className = 'zone ' + currentTeam; // سيطرة
+            wMode = '';
+        }
+        
+        // تحديث العدادات
+        document.getElementById('rs').innerText = document.querySelectorAll('.red-active').length;
+        document.getElementById('bs').innerText = document.querySelectorAll('.blue-active').length;
+    }
+</script>
+</body>
+</html>
