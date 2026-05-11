@@ -1,0 +1,36 @@
+let combo=0;
+
+function addCombo(){
+
+combo++;
+
+if(combo>=3){
+
+score+=combo*50;
+
+showCombo(combo);
+
+}
+
+}
+
+function showCombo(c){
+
+const div=document.createElement('div');
+
+div.innerText='COMBO x'+c;
+
+div.style.position='fixed';
+div.style.top='50%';
+div.style.left='50%';
+div.style.fontSize='50px';
+div.style.color='gold';
+div.style.zIndex='9999';
+
+document.body.appendChild(div);
+
+setTimeout(()=>{
+div.remove();
+},1000);
+
+}
