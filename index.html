@@ -5,31 +5,122 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إيموشا جواهر - إيهاب شرف</title>
     <style>
-        :root { --gold: #ffcc00; --bg: #0b0b0b; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; overflow: hidden; touch-action: none; text-align: center; }
+        body { 
+            background: #000; 
+            color: white; 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh;
+        }
         
         /* شاشة الدخول */
-        #login { position: fixed; inset: 0; background: radial-gradient(circle, #002200, #000); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .logo-box { width: 140px; height: 140px; border-radius: 50%; border: 3px solid var(--gold); box-shadow: 0 0 20px var(--gold); margin-bottom: 15px; overflow: hidden; background: #111; }
-        .logo-box img { width: 100%; height: 100%; object-fit: contain; }
-        .btn-start { background: linear-gradient(45deg, var(--gold), #ffaa00); padding: 15px 45px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; font-size: 1.2rem; box-shadow: 0 4px 15px rgba(255,204,0,0.3); }
+        #login { 
+            position: absolute; 
+            width: 100%; 
+            height: 100%; 
+            background: radial-gradient(circle, #1a3300, #000); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 1000;
+        }
+        .logo-box { 
+            width: 130px; 
+            height: 130px; 
+            border-radius: 50%; 
+            border: 3px solid #ffcc00; 
+            margin-bottom: 20px; 
+            overflow: hidden; 
+            box-shadow: 0 0 20px #ffcc00;
+        }
+        .logo-box img { width: 100%; height: 100%; object-fit: cover; }
+        .start-btn { 
+            background: #ffcc00; 
+            color: #000; 
+            padding: 15px 40px; 
+            border: none; 
+            border-radius: 30px; 
+            font-weight: bold; 
+            font-size: 1.2rem; 
+            cursor: pointer; 
+        }
 
         /* شاشة اللعبة */
-        #gameUI { display: none; height: 100vh; display: flex; flex-direction: column; }
-        .top-bar { background: #111; padding: 15px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-around; font-weight: bold; font-size: 1.1rem; }
-        
-        .grid-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; padding: 10px; }
-        .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; background: #1a1a1a; padding: 10px; border-radius: 12px; border: 2px solid #333; max-width: 380px; width: 100%; }
-        .gem { aspect-ratio: 1/1; background: #2a2a2a; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; cursor: pointer; transition: transform 0.2s, background 0.3s; }
-        .gem:active { transform: scale(0.9); }
-        .selected { border: 2px solid white; box-shadow: 0 0 15px white; z-index: 5; }
+        #gameUI { 
+            display: none; 
+            width: 100%; 
+            height: 100%; 
+            flex-direction: column; 
+        }
+        .top-bar { 
+            background: #111; 
+            padding: 15px; 
+            display: flex; 
+            justify-content: space-around; 
+            border-bottom: 2px solid #ffcc00; 
+            font-size: 1.2rem;
+        }
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(6, 1fr); 
+            gap: 5px; 
+            padding: 10px; 
+            margin: auto; 
+            background: #222; 
+            border-radius: 10px; 
+            max-width: 350px;
+        }
+        .gem { 
+            aspect-ratio: 1/1; 
+            background: #333; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.5rem; 
+            border-radius: 5px; 
+            cursor: pointer;
+        }
+        .selected { border: 2px solid #fff; background: #555; }
 
         /* صندوق الأسئلة */
-        #quiz-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 200; }
-        .quiz-card { background: #222; width: 85%; padding: 25px; border-radius: 20px; border: 3px solid var(--gold); }
-        .ans-btn { background: #333; color: white; border: 1px solid #555; padding: 12px; margin: 8px 0; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .ans-btn:hover { background: var(--gold); color: black; }
-
-        .footer-info { padding: 10px; color: #888; font-size: 0.8rem; }
+        #quiz { 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            background: #333; 
+            padding: 20px; 
+            border: 3px solid #ffcc00; 
+            border-radius: 15px; 
+            display: none; 
+            width: 80%; 
+            z-index: 2000;
+            text-align: center;
+        }
+        .ans-btn { 
+            display: block; 
+            width: 100%; 
+            margin: 10px 0; 
+            padding: 10px; 
+            background: #444; 
+            color: #fff; 
+            border: none; 
+            border-radius: 8px; 
+        }
     </style>
 </head>
+<body>
+
+<div id="login">
+    <div class="logo-box">
+        <img src="https://i.ibb.co/SXxQbqVh/Screenshot-Chat-GPT.jpg" alt="Logo">
+    </div>
+    <h2 style="color:#ffcc00">إيموشا: جواهر المعرفة</h2>
+    <p>بإشراف القبطان إيهاب شرف</p>
+    <button class="start-btn" onclick="startGame()">ابدأ المغامرة
