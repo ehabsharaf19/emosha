@@ -1,314 +1,89 @@
-<script>
+.points{
 
-const board=document.getElementById("board");
+position:absolute;
 
-const gems=[
-"💎",
-"⭐",
-"🟣",
-"🟢",
-"🔥",
-"🔷"
-];
+color:gold;
 
-let grid=[];
+font-size:24px;
 
-let score=0;
-let gold=0;
-let level=1;
+font-weight:bold;
 
-let selected=null;
+animation:float 1s linear forwards;
 
-const size=8;
-
-const questions=[
-
-{
-q:"ما عاصمة مصر؟",
-a:["القاهرة","روما","باريس"],
-c:"القاهرة"
-},
-
-{
-q:"كم عدد الكواكب؟",
-a:["8","9","7"],
-c:"8"
-},
-
-{
-q:"أكبر محيط؟",
-a:["الهادئ","الهندي","الأطلسي"],
-c:"الهادئ"
-}
-
-];
-
-function updateUI(){
-
-document.getElementById("score").innerText=score;
-
-document.getElementById("gold").innerText=gold;
-
-document.getElementById("level").innerText=level;
+pointer-events:none;
 
 }
 
-function randomGem(){
+@keyframes float{
 
-return gems[Math.floor(Math.random()*gems.length)];
-
+0%{
+opacity:1;
+transform:translateY(0);
 }
 
-function createBoard(){
-
-board.innerHTML='';
-
-grid=[];
-
-for(let row=0;row<size;row++){
-
-let current=[];
-
-for(let col=0;col<size;col++){
-
-const gem=document.createElement("div");
-
-gem.classList.add("gem");
-
-gem.innerText=randomGem();
-
-gem.dataset.row=row;
-gem.dataset.col=col;
-
-gem.addEventListener("click",()=>selectGem(gem));
-
-board.appendChild(gem);
-
-current.push(gem);
-
-}
-
-grid.push(current);
-
+100%{
+opacity:0;
+transform:translateY(-50px);
 }
 
 }
 
-function selectGem(gem){
+.shake{
 
-if(!selected){
-
-selected=gem;
-
-gem.classList.add("selected");
-
-}else{
-
-swapGems(selected,gem);
-
-selected.classList.remove("selected");
-
-selected=null;
+animation:shake .2s;
 
 }
 
-}
+@keyframes shake{
 
-function swapGems(a,b){
-
-const temp=a.innerText;
-
-a.innerText=b.innerText;
-
-b.innerText=temp;
-
-checkMatches();
+0%{transform:translateX(0);}
+25%{transform:translateX(5px);}
+50%{transform:translateX(-5px);}
+75%{transform:translateX(5px);}
+100%{transform:translateX(0);}
 
 }
+function explodeGem(gem){
 
-function checkMatches(){
+gem.classList.add("explode");
 
-let matched=[];
+const points=document.createElement("div");
 
-for(let row=0;row<size;row++){
+points.className="points";
 
-for(let col=0;col<size-2;col++){
+points.innerText="+10";
 
-let g1=grid[row][col];
-let g2=grid[row][col+1];
-let g3=grid[row][col+2];
+points.style.left=gem.offsetLeft+"px";
 
-if(
+points.style.top=gem.offsetTop+"px";
 
-g1.innerText &&
-g1.innerText===g2.innerText &&
-g2.innerText===g3.innerText
-
-){
-
-matched.push(g1,g2,g3);
-
-}
-
-}
-
-}
-
-for(let col=0;col<size;col++){
-
-for(let row=0;row<size-2;row++){
-
-let g1=grid[row][col];
-let g2=grid[row+1][col];
-let g3=grid[row+2][col];
-
-if(
-
-g1.innerText &&
-g1.innerText===g2.innerText &&
-g2.innerText===g3.innerText
-
-){
-
-matched.push(g1,g2,g3);
-
-}
-
-}
-
-}
-
-if(matched.length>0){
-
-matched.forEach(g=>{
-
-g.classList.add("explode");
+board.appendChild(points);
 
 setTimeout(()=>{
 
-g.innerText='';
+points.remove();
 
-g.classList.remove("explode");
+},1000);
+
+setTimeout(()=>{
+
+gem.innerText='';
+
+gem.classList.remove("explode");
 
 },250);
 
-});
-
-score+=matched.length*10;
-
-gold+=matched.length*3;
-
-updateUI();
-
-document.getElementById("sound").play();
-
-setTimeout(()=>{
-
-dropGems();
-
-},300);
-
 }
+<audio id="bgMusic" loop>
 
-}
+<source src="https://cdn.pixabay.com/download/audio/2022/10/25/audio_946f9d2f33.mp3">
 
-function dropGems(){
+</audio>
+document.body.addEventListener("click",()=>{
 
-for(let col=0;col<size;col++){
+document.getElementById("bgMusic").play();
 
-for(let row=size-1;row>=0;row--){
-
-if(grid[row][col].innerText===''){
-
-for(let k=row;k>0;k--){
-
-grid[k][col].innerText=
-grid[k-1][col].innerText;
-
-}
-
-grid[0][col].innerText=randomGem();
-
-}
-
-}
-
-}
-
-setTimeout(()=>{
-
-checkMatches();
-
-},200);
-
-if(score>=level*500){
-
-level++;
-
-updateUI();
-
-showQuestion();
-
-}
-
-}
-
-function spinWheel(){
-
-const rewards=[50,100,150,200];
-
-let reward=
-rewards[Math.floor(Math.random()*rewards.length)];
-
-gold+=reward;
-
-updateUI();
-
-alert("🎉 ربحت "+reward+" ذهب");
-
-}
-
-function shop(){
-
-if(gold>=100){
-
-gold-=100;
-
-score+=200;
-
-alert("🛒 تم شراء Boost");
-
-}else{
-
-alert("❌ ذهب غير كافي");
-
-}
-
-updateUI();
-
-}
-
-function showQuestion(){
-
-const q=
-questions[Math.floor(Math.random()*questions.length)];
-
-const box=document.getElementById("questionBox");
-
-box.style.display="block";
-
-document.getElementById("questionText").innerText=q.q;
-
-const answers=document.getElementById("answers");
-
-answers.innerHTML='';
-
-q.a.forEach(ans=>{
-
-const btn=document.createElement("button");
-
-btn.innerText=ans;
-
+},{once:true});
 btn.onclick=()=>{
 
 if(ans===q.c){
@@ -317,11 +92,17 @@ gold+=100;
 
 score+=100;
 
-alert("✅ إجابة صحيحة");
+level++;
+
+alert("✅ مرحلة جديدة");
 
 }else{
 
 alert("❌ إجابة خاطئة");
+
+score=0;
+
+gold=0;
 
 }
 
@@ -330,19 +111,3 @@ updateUI();
 box.style.display="none";
 
 };
-
-answers.appendChild(btn);
-
-});
-
-}
-
-createBoard();
-
-updateUI();
-
-  </script><audio autoplay loop>
-
-<source src="https://cdn.pixabay.com/download/audio/2022/02/22/audio_d1718ab41b.mp3">
-
-  </audio>
