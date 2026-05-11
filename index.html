@@ -3,37 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إيموشا - معركة الأبطال</title>
+    <title>إيموشا - الحرب الكبرى</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <style>
-        body { background: #121212; color: white; font-family: sans-serif; text-align: center; margin: 0; padding: 10px; }
-        .login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1a1a1a; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
-        input { padding: 15px; border-radius: 8px; border: none; width: 80%; max-width: 300px; font-size: 1.1rem; text-align: center; }
-        .start-btn { background: #ffcc00; color: #000; padding: 15px 40px; border: none; border-radius: 8px; margin-top: 20px; font-weight: bold; cursor: pointer; font-size: 1.2rem; }
-        .game-ui { display: none; }
-        .score-board { display: flex; justify-content: center; gap: 15px; margin: 15px 0; }
-        .score { padding: 10px; border-radius: 8px; flex: 1; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
-        .map { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 380px; margin: 0 auto; }
-        .zone { aspect-ratio: 1/1; background: #333; border: 2px solid #444; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
-        .red { background: #ff4d4d !important; border-color: white; box-shadow: 0 0 15px #ff4d4d; }
-        .blue { background: #4d94ff !important; border-color: white; box-shadow: 0 0 15px #4d94ff; }
-        .weapons { margin: 15px 0; display: flex; justify-content: center; gap: 10px; }
-        .w-btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        body { background: #0a0a0a; color: white; font-family: sans-serif; text-align: center; margin: 0; overflow-x: hidden; }
+        .login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #1a1a1a, #000); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+        input { padding: 15px; border-radius: 30px; border: 2px solid #ffcc00; width: 80%; max-width: 300px; background: #222; color: #fff; font-size: 1.1rem; text-align: center; margin-bottom: 20px; }
+        .btn-main { background: linear-gradient(45deg, #ffcc00, #ff9900); color: #000; padding: 15px 50px; border: none; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 1.2rem; box-shadow: 0 5px 15px rgba(255, 204, 0, 0.4); }
+        .game-ui { display: none; padding: 10px; }
+        .score-board { display: flex; justify-content: space-around; gap: 10px; margin-bottom: 15px; }
+        .score-card { padding: 15px; border-radius: 15px; flex: 1; font-weight: bold; border: 2px solid rgba(255,255,255,0.1); }
+        .map { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 360px; margin: 0 auto; }
+        .zone { aspect-ratio: 1/1; background: #1f1f1f; border: 1px solid #333; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; transition: 0.2s; color: #444; }
+        .red-active { background: #ff3333 !important; color: white !important; box-shadow: 0 0 20px #ff3333; transform: scale(0.95); }
+        .blue-active { background: #3385ff !important; color: white !important; box-shadow: 0 0 20px #3385ff; transform: scale(0.95); }
+        .music-ctrl { position: fixed; bottom: 10px; right: 10px; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 50%; cursor: pointer; border: 1px solid #ffcc00; z-index: 50; }
+        .weapon-bar { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
+        .weapon { padding: 10px 20px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<audio id="bgMusic" loop>
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+<audio id="warMusic" loop>
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg">
 </audio>
 
+<div class="music-ctrl" onclick="toggleMusic()">🎵</div>
+
 <div id="login" class="login-screen">
-    <h1>🎮 لعبة إيموشا</h1>
-    <p>أهلاً بك يا بطل، ادخل اسمك للمعارك:</p>
-    <input type="text" id="playerName" placeholder="اكتب اسمك هنا...">
-    <button class="start-btn" onclick="startGame()">دخول اللعبة ⚔️</button>
+    <h1 style="color:#ffcc00; letter-spacing: 2px;">EMOSHA GAME</h1>
+    <p>أهلاً بك يا بطل، سجل اسمك للمعركة:</p>
+    <input type="text" id="playerName" placeholder="اسم المقاتل...">
+    <button class="btn-main" onclick="start()">بدء الغزو ⚔️</button>
 </div>
 
 <div id="gameUI" class="game-ui">
+    <h2 id="pDisplay" style="text-shadow: 0 0 10px #ffcc00;"></h2>
+    
+    <div class="score-board">
+        <div class="score-card" style="background: rgba(255, 51, 51, 0.2); color: #ff3333;">الصقور: <span id="rs">0</span></div>
+        <div class="score-card" style="background: rgba(51, 133, 255, 0.2); color: #3385ff;">الذئاب: <span id="bs">0</span></div>
+    </div>
+
+    <div class="weapon-bar">
+        <button class="weapon" style="background:#ffcc00" onclick="w='bomb'">💣 قنبلة</button>
+        <button class="weapon" style="background:#ff5500; color:white" onclick="w='rocket'">🚀 صاروخ</button>
+    </div>
+
+    <div class="map" id="gameMap">
+        <script>
+            for(let i=1; i<=9; i++) document.write(`<div class="zone" id="z${i}" onclick="play(${i})">${i}</div>`);
+        </script>
+    </div>
+
+    <div style="margin-top:25px">
+        <button onclick="t='red'" style="background:#ff3333; color:white; padding:15px; border:none; border-radius:10px; width:40%; font-weight:bold;">فريق الصقور</button>
+        <button onclick="t='blue'" style="background:#3385ff; color:white; padding:15px; border:none; border-radius:10px; width:40%; font-weight:bold;">فريق الذئاب</button>
+    </div>
+</div>
+
+<script>
+    let t = '', w = '', music = document.getElementById('warMusic');
+
+    function toggleMusic() {
+        if (music.paused) music.play();
+        else music.pause();
+    }
+
+    function start() {
+        let name = document.getElementById('playerName').value;
+        if(!name) return alert("ادخل اسمك أولاً!");
+        music.play().catch(() => {});
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('gameUI').style.display = 'block';
+        document.getElementById('pDisplay').innerText = "القائد الميداني: " + name;
+    }
+
+    function play(id) {
+        if(!t) return alert("اختر فريقك بالأسفل!");
+        let z = document.getElementById('z'+id);
+        if(w === 'bomb') { z.className = 'zone'; w = ''; }
+        else { z.className = 'zone ' + (t === 'red' ? 'red-active' : 'blue-active'); w = ''; }
+        document.getElementById('rs').innerText = document.querySelectorAll('.red-active').length;
+        document.getElementById('bs').innerText = document.querySelectorAll('.blue-active').length;
+    }
+</script>
+</body>
+</html>
     <h2 id="welcomeMsg" style="color:#ffcc00"></h2>
     <div class="score-board">
         <div class="score" style="background:#ff4d4d">الصقور: <span id="rs">0</span></div>
