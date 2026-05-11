@@ -3,45 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إيموشا - جواهر المعرفة</title>
+    <title>إيموشا - صائد الجواهر</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background: #121212; color: gold; margin-top: 50px; }
-        .game-card { background: #1e1e1e; padding: 30px; border-radius: 20px; display: inline-block; border: 2px solid gold; box-shadow: 0 0 20px rgba(255,215,0,0.2); }
-        .btn-gem { background: linear-gradient(45deg, #ffd700, #ffa500); border: none; padding: 20px 40px; font-size: 22px; border-radius: 50px; cursor: pointer; color: black; font-weight: bold; margin-top: 20px; }
-        #score-val { font-size: 40px; display: block; margin: 10px 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f0f0f; color: white; text-align: center; overflow: hidden; margin: 0; }
+        #game-container { position: relative; width: 100vw; height: 100vh; background: radial-gradient(circle, #1a1a2e, #16213e); }
+        .gem { position: absolute; font-size: 40px; cursor: pointer; transition: transform 0.2s; z-index: 10; }
+        .gem:hover { transform: scale(1.3); }
+        #ui { position: fixed; top: 20px; left: 20px; font-size: 24px; color: #ffd700; z-index: 100; text-shadow: 0 0 10px gold; }
+        #quiz-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center; flex-direction: column; }
+        .quiz-box { background: #1e1e2e; padding: 30px; border-radius: 20px; border: 3px solid #ffd700; max-width: 80%; }
+        .option-btn { display: block; width: 100%; margin: 10px 0; padding: 15px; border: none; border-radius: 10px; background: #0f3460; color: white; cursor: pointer; font-size: 18px; }
+        .option-btn:hover { background: #ffd700; color: black; }
+        #msg { color: #00ff00; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="game-card">
-        <h1>💎 إيموشا: جواهر المعرفة</h1>
-        <p>مرحباً بك يا قبطان! اضغط لجمع الجواهر:</p>
-        <span id="score-val">0</span>
-        <button class="btn-gem" onclick="addGem()">اضغط لجمع 💎</button>
-    </div>
+    <div id="ui">النقاط: <span id="score">0</span> | المرحلة: <span id="level">1</span></div>
+    
+    <div id="game-container">
+        </div>
 
-    <script type="module" src="bati5a.js"></script>
-
-    <script type="module">
-        import { firebaseConfig } from './bati5a.js';
-
-        let score = 0;
-        window.addGem = function() {
-            score += 10;
-            document.getElementById('score-val').innerText = score;
-
-            // إرسال النقطة فوراً لـ Firebase
-            if (firebaseConfig.databaseURL) {
-                fetch(firebaseConfig.databaseURL + "/emosha_players.json", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        points: score,
-                        player: "القبطان إيهاب",
-                        time: new Date().toLocaleTimeString()
-                    })
-                }).then(() => console.log("تم الحفظ في المخزن!"));
-            }
-        };
-    </script>
-</body>
-</html>
+    <div id="quiz-overlay">
+        <div class="quiz-box">
+            <h2 id="msg">أحسنت يا قبطان! اجب لتعبر للمرحلة التالية:</h2>
+            <p id="question-text" style="font-size: 22px;"></p>
+            <div id="options-
