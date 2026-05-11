@@ -1,0 +1,20 @@
+function spinWheel(){
+
+const wheel=document.getElementById('wheel');
+
+const deg=Math.floor(Math.random()*3600);
+
+wheel.style.transform='rotate('+deg+'deg)';
+
+setTimeout(()=>{
+
+const reward=Math.floor(Math.random()*500);
+
+gold+=reward;
+updateUI();
+
+alert('ربحت '+reward+' ذهب');
+
+},4000);
+
+}
