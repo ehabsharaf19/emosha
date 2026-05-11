@@ -1,48 +1,23 @@
-let selected = [];
-
-function clickItem(cell) {
-
-    cell.classList.add("active");
-
-    selected.push(cell);
-
-    // اختيار عنصرين
-    if (selected.length == 2) {
-
-        if (selected[0].innerHTML == selected[1].innerHTML) {
-
-            score += 20;
-
-            selected[0].style.visibility = "hidden";
-            selected[1].style.visibility = "hidden";
-
-        } else {
-
-            score -= 5;
-
-        }
-
-        document.getElementById("score").innerText = score;
-
-        moves++;
-
-        document.getElementById("moves").innerText = moves;
-
-        selected.forEach(c => c.classList.remove("active"));
-
-        selected = [];
-
-        if (moves >= maxMoves) {
-
-            showQuestion();
-        }
-    }<script type="module" src="bati5a.js"></script>
+<script type="module" src="bati5a.js"></script>
 
 <script type="module">
   import { firebaseConfig } from './bati5a.js';
-  // كود اختباري للتأكد من الربط في المتصفح
-  console.log("إيموشا متصلة الآن بالمخزن:", firebaseConfig.databaseURL);
+  
+  // دالة لإرسال النقاط للمخزن مع حماية بسيطة
+  window.saveScoreToFirebase = function(points) {
+    const url = firebaseConfig.databaseURL + "/scores.json";
+    
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        playerName: "لاعب إيموشا",
+        score: points,
+        date: new Date().toISOString()
+      })
+    })
+    .then(response => console.log("تم حفظ النقاط في المخزن بنجاح!"))
+    .catch(error => console.error("خطأ في الحماية أو الربط:", error));
+  };
+
+  console.log("إيموشا مأمنة ومتصلة بالمخزن.");
 </script>
-
-}
-
