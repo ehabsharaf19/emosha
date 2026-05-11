@@ -1,83 +1,182 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إيموشا: جواهر المعرفة</title>
+    <title>لعبة فواكه القبطان إيهاب</title>
     <style>
-        :root { --main-blue: #004e92; --dark-blue: #000428; --gold: #ffd700; }
-        body { background: var(--dark-blue); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; text-align: center; overflow-x: hidden; }
-        
-        /* الواجهة الزرقاء الأصلية */
-        .header-blue { background: linear-gradient(180deg, #0072ff, #00c6ff); padding: 25px; border-bottom: 4px solid var(--gold); box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
-        .stats { font-size: 1.2rem; font-weight: bold; margin-top: 10px; display: flex; justify-content: center; gap: 20px; }
-
-        /* منطقة اللعب */
-        #game-grid { display: grid; grid-template-columns: repeat(8, 42px); grid-gap: 6px; justify-content: center; margin: 30px auto; padding: 15px; background: rgba(255,255,255,0.05); border: 2px solid #00f2ff; border-radius: 15px; width: fit-content; box-shadow: 0 0 15px #00f2ff; }
-        .gem { width: 42px; height: 42px; background: #1a2a4a; display: flex; align-items: center; justify-content: center; font-size: 24px; border-radius: 8px; cursor: pointer; transition: transform 0.2s; }
-        .selected { transform: scale(1.2); border: 2px solid white; box-shadow: 0 0 10px white; }
-
-        /* منطقة السؤال */
-        .quiz-container { background: rgba(17, 34, 64, 0.9); margin: 20px auto; padding: 20px; width: 90%; max-width: 400px; border: 2px solid var(--gold); border-radius: 20px; display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; }
-        .ans-btn { background: var(--gold); color: black; border: none; padding: 12px 25px; margin: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1.1rem; min-width: 100px; }
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+        .score-board {
+            font-size: 24px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(8, 45px);
+            grid-template-rows: repeat(8, 45px);
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .grid div {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .grid div:active { transform: scale(0.9); }
     </style>
 </head>
 <body>
 
-<div class="header-blue">
-    <h1 style="margin:0;">💎 إيموشا: جواهر المعرفة</h1>
-    <div class="stats">
-        <span>الذهب 💰: <span id="scr">0</span></span>
-        <span>المرحلة ⭐: <span id="lvl">1</span></span>
-    </div>
-</div>
+    <div class="score-board">النقاط: <span id="score">0</span></div>
+    <div class="grid" id="grid"></div>
 
-<div id="game-grid"></div>
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg">
+    </audio>
 
-<div id="quiz-screen" class="quiz-container">
-    <h2 style="color:var(--gold)">بوابة الانتقال</h2>
-    <p id="q-text" style="font-size:1.3rem;"></p>
-    <div id="options"></div>
-</div>
+    <script>
+        const grid = document.getElementById('grid');
+        const scoreDisplay = document.getElementById('score');
+        const width = 8;
+        const squares = [];
+        let score = 0;
+        let audioStarted = false;
 
-<audio id="winMusic">
-    <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" type="audio/mpeg">
-</audio>
+        const candyColors = ['🍎', '🍊', '🍇', '🍓', '🍋', '🥝'];
 
-<script>
-    const gems = ['💎', '🧿', '⭐', '👑', '🔱', '🧿'];
-    let score = 0, level = 1, firstGem = null, board = [];
-
-    const questions = [
-        { q: "ما هي عاصمة مصر؟", a: ["القاهرة", "طنطا", "دبي"], c: 0 },
-        { q: "ما هو أسرع حيوان؟", a: ["الأسد", "الفهد", "الغزال"], c: 1 }
-    ];
-
-    function createBoard() {
-        const grid = document.getElementById('game-grid');
-        grid.innerHTML = '';
-        for (let i = 0; i < 64; i++) {
-            const div = document.createElement('div');
-            div.className = 'gem';
-            div.innerHTML = gems[Math.floor(Math.random() * gems.length)];
-            div.onclick = () => clickGem(div);
-            grid.appendChild(div);
+        function createBoard() {
+            for (let i = 0; i < width * width; i++) {
+                const square = document.createElement('div');
+                square.setAttribute('draggable', true);
+                square.setAttribute('id', i);
+                let randomColor = Math.floor(Math.random() * candyColors.length);
+                square.innerHTML = candyColors[randomColor];
+                grid.appendChild(square);
+                squares.push(square);
+            }
         }
-    }
+        createBoard();
 
-    function clickGem(gem) {
-        if (!firstGem) {
-            firstGem = gem;
-            gem.classList.add('selected');
-        } else {
-            // تبديل الجواهر
-            let temp = firstGem.innerHTML;
-            firstGem.innerHTML = gem.innerHTML;
-            gem.innerHTML = temp;
-            
-            firstGem.classList.remove('selected');
-            firstGem = null;
+        let colorBeingDragged, colorBeingReplaced, squareIdBeingDragged, squareIdBeingReplaced;
 
-            // زيادة النقاط بالفرقعة فقط (وهمية هنا للتبسيط)
-            score += 20;
-            document.getElementById('scr').
+        squares.forEach(square => square.addEventListener('dragstart', dragStart));
+        squares.forEach(square => square.addEventListener('dragend', dragEnd));
+        squares.forEach(square => square.addEventListener('dragover', dragOver));
+        squares.forEach(square => square.addEventListener('dragenter', dragEnter));
+        squares.forEach(square => square.addEventListener('dragleave', dragLeave));
+        squares.forEach(square => square.addEventListener('drop', dragDrop));
+
+        function dragStart() {
+            colorBeingDragged = this.innerHTML;
+            squareIdBeingDragged = parseInt(this.id);
+            if(!audioStarted) {
+                document.getElementById('bgMusic').play();
+                audioStarted = true;
+            }
+        }
+        function dragOver(e) { e.preventDefault(); }
+        function dragEnter(e) { e.preventDefault(); }
+        function dragLeave() {}
+
+        function dragDrop() {
+            colorBeingReplaced = this.innerHTML;
+            squareIdBeingReplaced = parseInt(this.id);
+        }
+
+        function dragEnd() {
+            let validMoves = [
+                squareIdBeingDragged - 1,
+                squareIdBeingDragged - width,
+                squareIdBeingDragged + 1,
+                squareIdBeingDragged + width
+            ];
+            let isValidMove = validMoves.includes(squareIdBeingReplaced);
+
+            if (squareIdBeingReplaced && isValidMove) {
+                squares[squareIdBeingReplaced].innerHTML = colorBeingDragged;
+                squares[squareIdBeingDragged].innerHTML = colorBeingReplaced;
+
+                // التحقق هل الحركة أنتجت 3 قطع أو أكثر؟
+                if (checkMatches()) {
+                    squareIdBeingReplaced = null;
+                } else {
+                    // لو مفيش 3 قطع، رجعهم مكانهم (لا يفرقع 2 فقط)
+                    squares[squareIdBeingReplaced].innerHTML = colorBeingReplaced;
+                    squares[squareIdBeingDragged].innerHTML = colorBeingDragged;
+                }
+            }
+        }
+
+        function checkMatches() {
+            let hasMatch = false;
+            // التحقق من الصفوف (3 أو أكثر)
+            for (let i = 0; i < 64; i++) {
+                let rowOfThree = [i, i + 1, i + 2];
+                let decidedColor = squares[i].innerHTML;
+                let isBlank = squares[i].innerHTML === '';
+                const notValid = [6, 7, 14, 15, 22, 23, 30, 31, 38, 39, 46, 47, 54, 55, 62, 63];
+                if (notValid.includes(i)) continue;
+
+                if (rowOfThree.every(index => squares[index].innerHTML === decidedColor && !isBlank)) {
+                    score += 3;
+                    scoreDisplay.innerHTML = score;
+                    rowOfThree.forEach(index => squares[index].innerHTML = '');
+                    hasMatch = true;
+                }
+            }
+            // التحقق من الأعمدة (3 أو أكثر)
+            for (let i = 0; i < 47; i++) {
+                let columnOfThree = [i, i + width, i + width * 2];
+                let decidedColor = squares[i].innerHTML;
+                let isBlank = squares[i].innerHTML === '';
+
+                if (columnOfThree.every(index => squares[index].innerHTML === decidedColor && !isBlank)) {
+                    score += 3;
+                    scoreDisplay.innerHTML = score;
+                    columnOfThree.forEach(index => squares[index].innerHTML = '');
+                    hasMatch = true;
+                }
+            }
+            if(hasMatch) setTimeout(fillEmpty, 300);
+            return hasMatch;
+        }
+
+        function fillEmpty() {
+            for (let i = 0; i < 64; i++) {
+                if (squares[i].innerHTML === '') {
+                    let randomColor = Math.floor(Math.random() * candyColors.length);
+                    squares[i].innerHTML = candyColors[randomColor];
+                }
+            }
+            checkMatches();
+        }
+
+        window.setInterval(function(){
+            checkMatches();
+        }, 500);
+
+    </script>
+</body>
+</html>
