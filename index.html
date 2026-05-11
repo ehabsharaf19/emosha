@@ -4,267 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إيموشا: جواهر المعرفة</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
-        :root { --gold: #ffd700; --bg: #050a14; --panel: #112240; }
-        body { background: var(--bg); color: white; font-family: 'Cairo', sans-serif; margin: 0; overflow: hidden; touch-action: none; }
+        :root { --main-blue: #004e92; --dark-blue: #000428; --gold: #ffd700; }
+        body { background: var(--dark-blue); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; text-align: center; overflow-x: hidden; }
         
-        .header { background: var(--panel); padding: 10px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-around; font-size: 0.9rem; }
-        
-        #game-container { position: relative; margin: 20px auto; width: 320px; height: 320px; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 5px; }
-        .grid { display: grid; grid-template-columns: repeat(8, 1fr); grid-gap: 4px; }
-        .gem { width: 36px; height: 36px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: transform 0.1s; }
-        .selected { outline: 2px solid white; transform: scale(1.1); z-index: 10; box-shadow: 0 0 15px white; }
+        /* الواجهة الزرقاء الأصلية */
+        .header-blue { background: linear-gradient(180deg, #0072ff, #00c6ff); padding: 25px; border-bottom: 4px solid var(--gold); box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+        .stats { font-size: 1.2rem; font-weight: bold; margin-top: 10px; display: flex; justify-content: center; gap: 20px; }
 
-        /* شاشة السؤال */
-        #quiz-screen { position: fixed; inset: 0; background: rgba(5, 10, 20, 0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
-        .quiz-box { background: var(--panel); padding: 20px; border-radius: 20px; border: 2px solid var(--gold); width: 85%; max-width: 300px; text-align: center; }
-        .btn { background: var(--gold); color: black; border: none; padding: 12px; margin: 10px 0; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        /* منطقة اللعب */
+        #game-grid { display: grid; grid-template-columns: repeat(8, 42px); grid-gap: 6px; justify-content: center; margin: 30px auto; padding: 15px; background: rgba(255,255,255,0.05); border: 2px solid #00f2ff; border-radius: 15px; width: fit-content; box-shadow: 0 0 15px #00f2ff; }
+        .gem { width: 42px; height: 42px; background: #1a2a4a; display: flex; align-items: center; justify-content: center; font-size: 24px; border-radius: 8px; cursor: pointer; transition: transform 0.2s; }
+        .selected { transform: scale(1.2); border: 2px solid white; box-shadow: 0 0 10px white; }
 
-        /* مكان مخصص للإعلان لاحقاً */
-        #ad-placeholder { position: fixed; bottom: 0; width: 100%; height: 50px; background: #000; color: #444; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+        /* منطقة السؤال */
+        .quiz-container { background: rgba(17, 34, 64, 0.9); margin: 20px auto; padding: 20px; width: 90%; max-width: 400px; border: 2px solid var(--gold); border-radius: 20px; display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; }
+        .ans-btn { background: var(--gold); color: black; border: none; padding: 12px 25px; margin: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1.1rem; min-width: 100px; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div>المرحلة: <span id="lvl">1</span></div>
-    <div>النقاط: <span id="scr">0</span></div>
-    <div>الهدف: <span id="tgt">300</span></div>
-</div>
-
-<div id="game-container">
-    <div id="grid" class="grid"></div>
-</div>
-
-<div id="quiz-screen">
-    <div class="quiz-box">
-        <h3 style="color: var(--gold)">تحدي العبور ⭐</h3>
-        <p id="q-text">السؤال يظهر هنا...</p>
-        <div id="options"></div>
+<div class="header-blue">
+    <h1 style="margin:0;">💎 إيموشا: جواهر المعرفة</h1>
+    <div class="stats">
+        <span>الذهب 💰: <span id="scr">0</span></span>
+        <span>المرحلة ⭐: <span id="lvl">1</span></span>
     </div>
 </div>
 
-<div id="ad-placeholder">مساحة إعلانية (AdMob Area)</div>
+<div id="game-grid"></div>
 
-<script>
-    const items = ['💎', '🍎', '🍇', '⭐', '🧿', '🍀'];
-    let score = 0, level = 1, target = 300, selectedGem = null;
-    const gridEl = document.getElementById('grid');
-
-    const questions = [
-        { q: "ما هي عاصمة مصر؟", a: ["الإسكندرية", "القاهرة", "بورسعيد"], c: 1 },
-        { q: "أكبر محيط في العالم؟", a: ["الأطلسي", "الهندي", "الهادي"], c: 2 },
-        { q: "رتبة 'قبطان' تتبع أي سلاح؟", a: ["الجوي", "البحري", "المشاة"], c: 1 }
-    ];
-
-    function init() {
-        gridEl.innerHTML = '';
-        for (let i = 0; i < 64; i++) {
-            const div = document.createElement('div');
-            div.className = 'gem';
-            div.innerHTML = items[Math.floor(Math.random() * items.length)];
-            div.dataset.id = i;
-            div.onclick = () => clickGem(div);
-            gridEl.appendChild(div);
-        }
-    }
-
-    function clickGem(gem) {
-        if (!selectedGem) {
-            selectedGem = gem;
-            gem.classList.add('selected');
-        } else {
-            // منطق التبديل البسيط
-            let temp = selectedGem.innerHTML;
-            selectedGem.innerHTML = gem.innerHTML;
-            gem.innerHTML = temp;
-            
-            selectedGem.classList.remove('selected');
-            selectedGem = null;
-            
-            // فرقعة وهمية وزيادة نقاط
-            score += 50;
-            document.getElementById('scr').innerText = score;
-            if (score >= target) showQuiz();
-        }
-    }
-
-    function showQuiz() {
-        const screen = document.getElementById('quiz-screen');
-        const qData = questions[(level - 1) % questions.length];
-        document.getElementById('q-text').innerText = qData.q;
-        const optDiv = document.getElementById('options');
-        optDiv.innerHTML = '';
-        
-        qData.a.forEach((opt, i) => {
-            const b = document.createElement('button');
-            b.className = 'btn';
-            b.innerText = opt;
-            b.onclick = () => {
-                if (i === qData.c) {
-                    screen.style.display = 'none';
-                    nextLevel();
-                } else { alert("حاول مرة أخرى يا قبطان!"); }
-            };
-            optDiv.appendChild(b);
-        });
-        screen.style.display = 'flex';
-    }
-
-    function nextLevel() {
-        level++;
-        score = 0;
-        target += 200;
-        document.getElementById('lvl').innerText = level;
-        document.getElementById('scr').innerText = score;
-        document.getElementById('tgt').innerText = target;
-        init();
-        alert("انتقلت للمرحلة " + level + " بنجاح!");
-    }
-
-    init();
-</script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إيموشا: جواهر المعرفة</title>
-    <style>
-        body {
-            background: #0a192f;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-        }
-        .header {
-            background: linear-gradient(to right, #004e92, #000428);
-            padding: 15px;
-            border-bottom: 3px solid #ffd700;
-        }
-        #game-board {
-            display: grid;
-            grid-template-columns: repeat(8, 40px);
-            grid-gap: 5px;
-            justify-content: center;
-            margin: 20px auto;
-            background: #112240;
-            padding: 10px;
-            border-radius: 10px;
-            width: fit-content;
-            box-shadow: 0 0 15px #00f2ff;
-        }
-        .gem {
-            width: 40px;
-            height: 40px;
-            background: #1d2d50;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .quiz-section {
-            background: #112240;
-            margin: 20px;
-            padding: 20px;
-            border-radius: 15px;
-            border: 1px solid #ffd700;
-        }
-        .btn {
-            background: #ffd700;
-            color: black;
-            border: none;
-            padding: 10px 20px;
-            margin: 5px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-
-<div class="header">
-    <h1>إيموشا: جواهر المعرفة 💎</h1>
-    <p>الذهب 💰: <span id="score">0</span> | المرحلة ⭐: <span id="lvl">1</span></p>
-</div>
-
-<div id="game-board"></div>
-
-<div class="quiz-section">
-    <h3 id="q-text">سؤال العبور: ما هي عاصمة مصر؟</h3>
+<div id="quiz-screen" class="quiz-container">
+    <h2 style="color:var(--gold)">بوابة الانتقال</h2>
+    <p id="q-text" style="font-size:1.3rem;"></p>
     <div id="options"></div>
 </div>
 
-<audio id="bg-music" loop>
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+<audio id="winMusic">
+    <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" type="audio/mpeg">
 </audio>
 
 <script>
     const gems = ['💎', '🧿', '⭐', '👑', '🔱', '🧿'];
-    let score = 0;
-    let currentLvl = 1;
+    let score = 0, level = 1, firstGem = null, board = [];
 
-    // بنك أسئلة بسيط
-    const myQuestions = [
-        { q: "ما هي عاصمة مصر؟", a: ["القاهرة", "طنطا", "دبي"], c: "القاهرة" },
-        { q: "ما هو أسرع حيوان؟", a: ["الأسد", "الفهد", "الفيل"], c: "الفهد" },
-        { q: "أين تقع الأهرامات؟", a: ["الجيزة", "أسوان", "القليوبية"], c: "الجيزة" }
+    const questions = [
+        { q: "ما هي عاصمة مصر؟", a: ["القاهرة", "طنطا", "دبي"], c: 0 },
+        { q: "ما هو أسرع حيوان؟", a: ["الأسد", "الفهد", "الغزال"], c: 1 }
     ];
 
-    function init() {
-        const board = document.getElementById('game-board');
-        board.innerHTML = '';
+    function createBoard() {
+        const grid = document.getElementById('game-grid');
+        grid.innerHTML = '';
         for (let i = 0; i < 64; i++) {
             const div = document.createElement('div');
             div.className = 'gem';
             div.innerHTML = gems[Math.floor(Math.random() * gems.length)];
-            div.onclick = () => {
-                score += 10;
-                document.getElementById('score').innerText = score;
-                div.style.background = '#444';
-                setTimeout(() => div.style.background = '#1d2d50', 100);
-                div.innerHTML = gems[Math.floor(Math.random() * gems.length)];
-                // تشغيل الموسيقى عند أول ضغطة لو المتصفح مانعها
-                document.getElementById('bg-music').play().catch(()=>{});
-            };
-            board.appendChild(div);
+            div.onclick = () => clickGem(div);
+            grid.appendChild(div);
         }
-        loadQuestion();
     }
 
-    function loadQuestion() {
-        const qData = myQuestions[(currentLvl - 1) % myQuestions.length];
-        document.getElementById('q-text').innerText = qData.q;
-        const optContainer = document.getElementById('options');
-        optContainer.innerHTML = '';
-        qData.a.forEach(opt => {
-            const b = document.createElement('button');
-            b.className = 'btn';
-            b.innerText = opt;
-            b.onclick = () => {
-                if(opt === qData.c) {
-                    alert("صح يا قبطان! للمرحلة التالية..");
-                    currentLvl++;
-                    document.getElementById('lvl').innerText = currentLvl;
-                    init();
-                } else {
-                    alert("ركز شوية يا هندسة!");
-                }
-            };
-            optContainer.appendChild(b);
-        });
-    }
+    function clickGem(gem) {
+        if (!firstGem) {
+            firstGem = gem;
+            gem.classList.add('selected');
+        } else {
+            // تبديل الجواهر
+            let temp = firstGem.innerHTML;
+            firstGem.innerHTML = gem.innerHTML;
+            gem.innerHTML = temp;
+            
+            firstGem.classList.remove('selected');
+            firstGem = null;
 
-    window.onload = init;
-</script>
-
-</body>
-</html>
+            // زيادة النقاط بالفرقعة فقط (وهمية هنا للتبسيط)
+            score += 20;
+            document.getElementById('scr').
