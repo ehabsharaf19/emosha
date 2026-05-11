@@ -4,33 +4,421 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EMOUSHA GEMS</title>
-<link rel="stylesheet" href="style.css">
+
+<style>
+
+body{
+margin:0;
+background:#0b1020;
+font-family:tahoma;
+color:white;
+overflow:hidden;
+}
+
+.topbar{
+display:flex;
+justify-content:space-around;
+padding:15px;
+background:black;
+color:gold;
+font-size:22px;
+font-weight:bold;
+}
+
+.board{
+width:95vw;
+max-width:520px;
+height:520px;
+margin:20px auto;
+display:grid;
+grid-template-columns:repeat(8,1fr);
+gap:5px;
+background:#111;
+padding:10px;
+border-radius:20px;
+}
+
+.gem{
+background:#1f2937;
+border-radius:15px;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:34px;
+cursor:pointer;
+transition:.2s;
+}
+
+.gem:hover{
+transform:scale(1.08);
+}
+
+.selected{
+outline:3px solid gold;
+}
+
+.explode{
+animation:explode .3s linear;
+}
+
+@keyframes explode{
+0%{transform:scale(1);}
+100%{transform:scale(0);opacity:0;}
+}
+
+.popup{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:#111;
+padding:20px;
+border-radius:20px;
+border:2px solid gold;
+display:none;
+z-index:999;
+width:300px;
+text-align:center;
+}
+
+.popup button{
+width:100%;
+margin-top:10px;
+padding:10px;
+border:none;
+background:gold;
+font-size:18px;
+border-radius:10px;
+}
+
+.buttons{
+display:flex;
+justify-content:center;
+gap:15px;
+}
+
+.buttons button{
+padding:15px 20px;
+border:none;
+background:gold;
+border-radius:15px;
+font-size:18px;
+font-weight:bold;
+}
+
+</style>
 </head>
+
 <body>
 
 <div class="topbar">
+
 <div>⭐ <span id="score">0</span></div>
+
 <div>💰 <span id="gold">0</span></div>
+
 <div>🎯 <span id="level">1</span></div>
+
 </div>
 
 <div id="board" class="board"></div>
 
 <div class="buttons">
-<button id="spinBtn">🎡 عجلة الحظ</button>
-<button id="shopBtn">🛒 المتجر</button>
+
+<button onclick="spin()">🎡 عجلة الحظ</button>
+
+<button onclick="shop()">🛒 المتجر</button>
+
 </div>
 
-<div id="questionBox" class="popup">
+<div id="popup" class="popup">
+
 <h2>🧠 سؤال المرحلة</h2>
-<p id="questionText"></p>
+
+<p id="question"></p>
+
 <div id="answers"></div>
+
 </div>
 
-<audio id="bgMusic" loop src="sounds/bg.mp3"></audio>
-<audio id="boom" src="sounds/boom.mp3"></audio>
-<audio id="combo" src="sounds/combo.mp3"></audio>
+<audio id="music" loop>
 
-<script src="game.js"></script>
+<source src="https://cdn.pixabay.com/download/audio/2022/10/25/audio_946f9d2f33.mp3">
+
+</audio>
+
+<audio id="boom">
+
+<source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3">
+
+</audio>
+
+<script>
+
+const board=document.getElementById('board');
+
+const gems=['💎','⭐','🔥','🟢','🟣','🔷'];
+
+const size=8;
+
+let grid=[];
+
+let selected=null;
+
+let score=0;
+
+let gold=0;
+
+let level=1;
+
+const questions=[
+
+{
+q:'ما عاصمة مصر؟',
+a:['القاهرة','روما','باريس'],
+c:'القاهرة'
+},
+
+{
+q:'كم عدد الكواكب؟',
+a:['8','9','7'],
+c:'8'
+}
+
+];
+
+function updateUI(){
+
+document.getElementById('score').innerText=score;
+
+document.getElementById('gold').innerText=gold;
+
+document.getElementById('level').innerText=level;
+
+}
+
+function randomGem(){
+
+return gems[Math.floor(Math.random()*gems.length)];
+
+}
+
+function createBoard(){
+
+board.innerHTML='';
+
+grid=[];
+
+for(let row=0;row<size;row++){
+
+let current=[];
+
+for(let col=0;col<size;col++){
+
+const gem=document.createElement('div');
+
+gem.className='gem';
+
+gem.innerText=randomGem();
+
+gem.addEventListener('click',()=>selectGem(gem));
+
+board.appendChild(gem);
+
+current.push(gem);
+
+}
+
+grid.push(current);
+
+}
+
+}
+
+function selectGem(gem){
+
+if(selected===null){
+
+selected=gem;
+
+gem.classList.add('selected');
+
+}else{
+
+swap(selected,gem);
+
+selected.classList.remove('selected');
+
+selected=null;
+
+}
+
+}
+
+function swap(a,b){
+
+const temp=a.innerText;
+
+a.innerText=b.innerText;
+
+b.innerText=temp;
+
+check();
+
+}
+
+function check(){
+
+let matched=[];
+
+for(let row=0;row<size;row++){
+
+for(let col=0;col<size-2;col++){
+
+let g1=grid[row][col];
+let g2=grid[row][col+1];
+let g3=grid[row][col+2];
+
+if(
+
+g1.innerText===g2.innerText &&
+g2.innerText===g3.innerText
+
+){
+
+matched.push(g1,g2,g3);
+
+}
+
+}
+
+}
+
+if(matched.length>0){
+
+matched.forEach(g=>{
+
+g.classList.add('explode');
+
+setTimeout(()=>{
+
+g.innerText=randomGem();
+
+g.classList.remove('explode');
+
+},300);
+
+});
+
+score+=matched.length*10;
+
+gold+=matched.length*2;
+
+updateUI();
+
+document.getElementById('boom').play();
+
+if(score>=level*100){
+
+showQuestion();
+
+}
+
+}
+
+}
+
+function showQuestion(){
+
+const q=
+questions[Math.floor(Math.random()*questions.length)];
+
+document.getElementById('popup').style.display='block';
+
+document.getElementById('question').innerText=q.q;
+
+const answers=document.getElementById('answers');
+
+answers.innerHTML='';
+
+q.a.forEach(ans=>{
+
+const btn=document.createElement('button');
+
+btn.innerText=ans;
+
+btn.onclick=()=>{
+
+if(ans===q.c){
+
+level++;
+
+gold+=100;
+
+}else{
+
+score=0;
+
+}
+
+updateUI();
+
+document.getElementById('popup').style.display='none';
+
+};
+
+answers.appendChild(btn);
+
+});
+
+}
+
+function spin(){
+
+const rewards=[50,100,150,200];
+
+const reward=
+rewards[Math.floor(Math.random()*rewards.length)];
+
+gold+=reward;
+
+updateUI();
+
+alert('🎉 ربحت '+reward+' ذهب');
+
+}
+
+function shop(){
+
+if(gold>=100){
+
+gold-=100;
+
+score+=200;
+
+alert('🛒 تم شراء Boost');
+
+}else{
+
+alert('❌ ذهب غير كافي');
+
+}
+
+updateUI();
+
+}
+
+createBoard();
+
+updateUI();
+
+window.addEventListener('click',()=>{
+
+document.getElementById('music').play();
+
+},{once:true});
+
+</script>
+
 </body>
 </html>
